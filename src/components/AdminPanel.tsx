@@ -77,7 +77,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
         <>
             <button
                 onClick={togglePanel}
-                className="fixed bottom-6 right-6 p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-500 transition-colors z-50 flex items-center justify-center"
+                className="fixed bottom-24 sm:bottom-6 right-6 p-4 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-500 transition-colors z-[60] flex items-center justify-center"
             >
                 <Settings className="w-6 h-6" />
             </button>
@@ -91,7 +91,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
                         className="fixed inset-0 z-50 bg-[#0f172a] overflow-y-auto"
                     >
-                        <div className="p-4 sm:p-6 pb-24 max-w-2xl mx-auto">
+                        <div className="p-4 sm:p-6 pb-48 max-w-2xl mx-auto">
                             <div className="flex justify-between items-center mb-6">
                                 <h2 className="text-2xl font-bold text-white">Admin Panel</h2>
                                 <button onClick={togglePanel} className="p-2 bg-white/10 rounded-full text-white">
