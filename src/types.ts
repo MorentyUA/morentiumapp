@@ -17,7 +17,7 @@ export interface Item {
     thumbnail?: string;
 }
 
-export const ADMIN_ID = 123456789; // Set the Telegram User ID of the owner here
+export const ADMIN_ID = 5987901450; // Set the Telegram User ID of the owner here
 
 // Default Data
 export const defaultCategories: Category[] = [
