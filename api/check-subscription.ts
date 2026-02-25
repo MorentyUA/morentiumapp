@@ -38,12 +38,17 @@ export default async function handler(req: any, res: any) {
       const status = data.result.status;
       // Valid statuses for a subscriber: 'member', 'administrator', 'creator', 'restricted'
       const isSubscribed = ['member', 'administrator', 'creator', 'restricted'].includes(status);
-      return res.status(200).json({ isSubscribed });
+      return res.status(200).json({
+        isSubscribed,
+        debug: !isSubscribed ? `ID: ${userId} is present but status is "${status}".` : null
+      });
     } else {
-      // If the API call fails (e.g., bot not an admin in the channel), we might want to log it
-      // but let's default to not subscribed or bypass depending on strictness.
       console.error("Telegram API Error:", data.description);
-      return res.status(200).json({ isSubscribed: false, error: data.description });
+      return res.status(200).json({
+        isSubscribed: false,
+        error: data.description,
+        debug: `Telegram Error: ${data.description} (Channel: ${CHANNEL_ID})`
+      });
     }
   } catch (error) {
     console.error("Error checking subscription:", error);

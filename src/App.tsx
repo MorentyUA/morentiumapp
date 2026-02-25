@@ -14,6 +14,7 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
   const [isCheckingSub, setIsCheckingSub] = useState(true);
+  const [subError, setSubError] = useState<string>('');
 
   // Use Telegram hooks
   const { user, tg } = useTelegram();
@@ -37,29 +38,32 @@ function App() {
     }
   }, [tg]);
 
+  const checkSubscription = async () => {
+    setIsCheckingSub(true);
+    setSubError(''); // clear prev errors
+    if (!user?.id) {
+      // For testing outside telegram, allow access
+      setIsSubscribed(true);
+      setIsCheckingSub(false);
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/check-subscription?userId=${user.id}`);
+      const data = await res.json();
+
+      // If API returned isSubscribed: false, block them. Otherwise allow.
+      setIsSubscribed(data.isSubscribed !== false);
+      if (data.error || data.debug) setSubError(data.error || data.debug);
+    } catch (e) {
+      // On network error fallback to allow so we don't lock out users completely
+      setIsSubscribed(true);
+    } finally {
+      setIsCheckingSub(false);
+    }
+  };
+
   useEffect(() => {
-    const checkSubscription = async () => {
-      if (!user?.id) {
-        // For testing outside telegram, allow access
-        setIsSubscribed(true);
-        setIsCheckingSub(false);
-        return;
-      }
-
-      try {
-        const res = await fetch(`/api/check-subscription?userId=${user.id}`);
-        const data = await res.json();
-
-        // If API returned isSubscribed: false, block them. Otherwise allow.
-        setIsSubscribed(data.isSubscribed !== false);
-      } catch (e) {
-        // On network error fallback to allow so we don't lock out users completely
-        setIsSubscribed(true);
-      } finally {
-        setIsCheckingSub(false);
-      }
-    };
-
     checkSubscription();
   }, [user?.id]);
 
@@ -79,7 +83,7 @@ function App() {
 
   if (isSubscribed === false && !isAdmin) {
     // Admins are never blocked by the subscription gate
-    return <SubscriptionGate />;
+    return <SubscriptionGate onRetry={checkSubscription} error={subError} />;
   }
 
   return (

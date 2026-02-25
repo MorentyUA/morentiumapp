@@ -1,8 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Lock } from 'lucide-react';
+import { Lock, RefreshCw } from 'lucide-react';
 
-export const SubscriptionGate: React.FC = () => {
+interface SubscriptionGateProps {
+    onRetry: () => Promise<void>;
+    error?: string;
+}
+
+export const SubscriptionGate: React.FC<SubscriptionGateProps> = ({ onRetry, error }) => {
+    const [isChecking, setIsChecking] = useState(false);
+
+    const handleRetry = async () => {
+        setIsChecking(true);
+        await onRetry();
+        setIsChecking(false);
+    };
+
     return (
         <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center p-6 bg-[#0f172a] text-white">
             <motion.div
@@ -28,11 +41,18 @@ export const SubscriptionGate: React.FC = () => {
                     Вступить
                 </a>
                 <button
-                    onClick={() => window.location.reload()}
-                    className="text-sm text-slate-500 hover:text-white transition-colors"
+                    onClick={handleRetry}
+                    disabled={isChecking}
+                    className="text-sm text-slate-500 hover:text-white transition-colors flex items-center justify-center space-x-2"
                 >
-                    Я уже подписался
+                    <RefreshCw className={`w-4 h-4 ${isChecking ? 'animate-spin' : ''}`} />
+                    <span>Я уже вступил</span>
                 </button>
+                {error && (
+                    <p className="text-xs text-red-400 mt-2 break-words max-w-full px-4 text-center">
+                        Детали ошибки: {error}
+                    </p>
+                )}
             </motion.div>
         </div>
     );
