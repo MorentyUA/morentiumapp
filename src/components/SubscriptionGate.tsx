@@ -16,16 +16,16 @@ export const SubscriptionGate: React.FC = () => {
                 <div>
                     <h2 className="text-2xl font-bold mb-2">Доступ закрыт</h2>
                     <p className="text-slate-400 text-sm leading-relaxed">
-                        Чтобы использовать это приложение, вы должны быть подписаны на наш официальный канал.
+                        Чтобы использовать это приложение, вы должны состоять в нашей закрытой группе.
                     </p>
                 </div>
                 <a
-                    href="https://t.me/morentube/183"
+                    href={import.meta.env.VITE_INVITE_LINK || "https://t.me/morentube/183"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-colors block shadow-lg"
                 >
-                    Подписаться на канал
+                    Вступить
                 </a>
                 <button
                     onClick={() => window.location.reload()}

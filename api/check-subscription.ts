@@ -21,8 +21,8 @@ export default async function handler(req: any, res: any) {
 
   // We read the bot token from Vercel Environment variables.
   const BOT_TOKEN = process.env.BOT_TOKEN;
-  // Use the specific channel requested by the user
-  const CHANNEL_ID = '@morentube';
+  // Read Group/Channel ID from env, fallback to private group ID
+  const CHANNEL_ID = process.env.GROUP_ID || '-1003699693654';
 
   // If no bot token is set up on the server yet, we'll bypass the check so the app doesn't break.
   if (!BOT_TOKEN) {
