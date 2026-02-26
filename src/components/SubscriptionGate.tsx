@@ -29,7 +29,7 @@ export const SubscriptionGate: React.FC<SubscriptionGateProps> = ({ onRetry, err
                 <div>
                     <h2 className="text-2xl font-bold mb-2">Доступ закрито</h2>
                     <p className="text-slate-400 text-sm leading-relaxed">
-                        Щоб користуватися цим застосунком, ви маєте бути учасником нашої закритої групи.
+                        Щоб користуватися цим застосунком, ви маєте бути підписані на наш <b>основний Telegram-канал</b>.
                     </p>
                 </div>
                 <a

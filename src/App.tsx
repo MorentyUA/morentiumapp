@@ -116,7 +116,18 @@ function App() {
             onSelectCategory={(cat) => {
               if (cat.isPrivate && !isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
                 try {
-                  tg.showAlert('Для доступу до цієї категорії потрібна VIP підписка на приватну групу!');
+                  tg.showPopup({
+                    title: '⭐️ VIP Контент',
+                    message: 'Для доступу до цієї категорії потрібна VIP підписка на нашу приватну групу!',
+                    buttons: [
+                      { id: 'subscribe', type: 'default', text: 'Долучитися' },
+                      { id: 'cancel', type: 'cancel' }
+                    ]
+                  }, (buttonId?: string) => {
+                    if (buttonId === 'subscribe') {
+                      tg.openTelegramLink(import.meta.env.VITE_INVITE_LINK || "https://t.me/morentube/183");
+                    }
+                  });
                 } catch (e) {
                   alert('Для доступу до цієї категорії потрібна VIP підписка!');
                 }
