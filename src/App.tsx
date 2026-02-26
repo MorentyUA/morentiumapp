@@ -12,7 +12,8 @@ function App() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
+  const [isPublicSubscribed, setIsPublicSubscribed] = useState<boolean | null>(null);
+  const [isPrivateSubscribed, setIsPrivateSubscribed] = useState<boolean>(false);
   const [isCheckingSub, setIsCheckingSub] = useState(true);
   const [isDataLoading, setIsDataLoading] = useState(true);
   const [subError, setSubError] = useState<string>('');
@@ -55,7 +56,8 @@ function App() {
     setSubError(''); // clear prev errors
     if (!user?.id) {
       // For testing outside telegram, allow access
-      setIsSubscribed(true);
+      setIsPublicSubscribed(true);
+      setIsPrivateSubscribed(true); // Allow all locally
       setIsCheckingSub(false);
       return;
     }
@@ -64,12 +66,17 @@ function App() {
       const res = await fetch(`/api/check-subscription?userId=${user.id}`);
       const data = await res.json();
 
-      // If API returned isSubscribed: false, block them. Otherwise allow.
-      setIsSubscribed(data.isSubscribed !== false);
-      if (data.error || data.debug) setSubError(data.error || data.debug);
+      // If API returned isPublicSubscribed: false, block them. Otherwise allow.
+      setIsPublicSubscribed(data.isPublicSubscribed !== false);
+      setIsPrivateSubscribed(data.isPrivateSubscribed === true);
+
+      if (data.error || data.debug?.public || data.debug?.private) {
+        setSubError(data.error || JSON.stringify(data.debug));
+      }
     } catch (e) {
       // On network error fallback to allow so we don't lock out users completely
-      setIsSubscribed(true);
+      setIsPublicSubscribed(true);
+      setIsPrivateSubscribed(false);
     } finally {
       setIsCheckingSub(false);
     }
@@ -83,6 +90,9 @@ function App() {
   // For production, fallback to false.
   const isAdmin = user?.id === ADMIN_ID || !user;
 
+  // Compute what categories the user is allowed to see
+  const visibleCategories = categories.filter(c => isAdmin || import.meta.env.DEV || isPrivateSubscribed || !c.isPrivate);
+
   const categoryItems = selectedCategory ? items.filter(i => i.categoryId === selectedCategory.id) : [];
 
   if (isCheckingSub || isDataLoading) {
@@ -93,7 +103,7 @@ function App() {
     );
   }
 
-  if (isSubscribed === false && !isAdmin) {
+  if (isPublicSubscribed === false && !isAdmin) {
     // Admins are never blocked by the subscription gate
     return <SubscriptionGate onRetry={checkSubscription} error={subError} />;
   }
@@ -104,7 +114,7 @@ function App() {
         {!selectedCategory ? (
           <Dashboard
             key="dashboard"
-            categories={categories}
+            categories={visibleCategories}
             onSelectCategory={setSelectedCategory}
           />
         ) : (

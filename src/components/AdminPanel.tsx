@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Trash2, X, Settings } from 'lucide-react';
+import { Plus, Trash2, X, Settings, Lock } from 'lucide-react';
 import { type Category, type Item, type ItemType } from '../types';
 import { saveCategories, saveItems } from '../lib/store';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,6 +23,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
     const [catTitle, setCatTitle] = useState('');
     const [catDesc, setCatDesc] = useState('');
     const [catImg, setCatImg] = useState('');
+    const [catIsPrivate, setCatIsPrivate] = useState(false);
 
     // Item Form
     const [editingItemId, setEditingItemId] = useState<string | null>(null);
@@ -54,7 +55,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                 // Edit existing
                 const updatedCategories = categories.map(c =>
                     c.id === editingCategoryId
-                        ? { ...c, title: catTitle, description: catDesc, coverImage: catImg }
+                        ? { ...c, title: catTitle, description: catDesc, coverImage: catImg, isPrivate: catIsPrivate }
                         : c
                 );
                 const newData = await saveCategories(updatedCategories);
@@ -66,13 +67,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                     title: catTitle,
                     description: catDesc,
                     coverImage: catImg || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80',
+                    isPrivate: catIsPrivate,
                 };
                 const newData = await saveCategories([...categories, newCat]);
                 onDataChange(newData.categories, newData.items);
             }
             // Reset form
             setEditingCategoryId(null);
-            setCatTitle(''); setCatDesc(''); setCatImg('');
+            setCatTitle(''); setCatDesc(''); setCatImg(''); setCatIsPrivate(false);
         } catch (e: any) {
             setSaveError(e.message || "Failed to save category");
         }
@@ -84,12 +86,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
         setCatTitle(cat.title);
         setCatDesc(cat.description);
         setCatImg(cat.coverImage);
+        setCatIsPrivate(cat.isPrivate || false);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const cancelEditCategory = () => {
         setEditingCategoryId(null);
-        setCatTitle(''); setCatDesc(''); setCatImg('');
+        setCatTitle(''); setCatDesc(''); setCatImg(''); setCatIsPrivate(false);
     };
 
     const handleDeleteCategory = async (id: string) => {
@@ -229,6 +232,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                                         <input type="text" placeholder="Description" value={catDesc} onChange={e => setCatDesc(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
                                         <input type="text" placeholder="Image URL (optional)" value={catImg} onChange={e => setCatImg(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
 
+                                        <label className="flex items-center space-x-3 text-white cursor-pointer bg-black/30 p-3 rounded-lg border border-white/10">
+                                            <input type="checkbox" checked={catIsPrivate} onChange={e => setCatIsPrivate(e.target.checked)} className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 bg-gray-700" />
+                                            <span>Make Private (Premium Only)</span>
+                                        </label>
+
                                         <div className="flex space-x-2">
                                             {editingCategoryId && (
                                                 <button onClick={cancelEditCategory} disabled={isSaving} className="w-1/3 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center">
@@ -246,7 +254,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                                         {categories.map(cat => (
                                             <div key={cat.id} className="glass-card p-4 flex justify-between items-center bg-white/5">
                                                 <div>
-                                                    <p className="font-bold text-white">{cat.title}</p>
+                                                    <p className="font-bold text-white flex items-center">
+                                                        {cat.isPrivate && <Lock className="w-4 h-4 mr-2 text-yellow-500" />}
+                                                        {cat.title}
+                                                    </p>
                                                     <p className="text-sm text-slate-400">{cat.id}</p>
                                                 </div>
                                                 <div className="flex space-x-1 shrink-0">

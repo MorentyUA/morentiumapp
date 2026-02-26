@@ -33,7 +33,7 @@ export const SubscriptionGate: React.FC<SubscriptionGateProps> = ({ onRetry, err
                     </p>
                 </div>
                 <a
-                    href={import.meta.env.VITE_INVITE_LINK || "https://t.me/morentube/183"}
+                    href={import.meta.env.VITE_PUBLIC_CHANNEL_LINK || "https://t.me/morentube/183"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-colors block shadow-lg"

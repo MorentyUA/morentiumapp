@@ -3,6 +3,7 @@ export interface Category {
     title: string;
     description: string;
     coverImage: string;
+    isPrivate?: boolean;
 }
 
 export type ItemType = 'youtube' | 'link' | 'text';
