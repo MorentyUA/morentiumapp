@@ -77,7 +77,14 @@ export default async function handler(req: any, res: any) {
                 body: JSON.stringify(payload),
             });
 
-            const data = await response.json();
+            let data;
+            const textResponse = await response.text();
+            try {
+                data = JSON.parse(textResponse);
+            } catch (e) {
+                // Not JSON (e.g. Vercel HTML error page 404/500)
+                return res.status(response.status).json({ error: textResponse.substring(0, 200) });
+            }
 
             if (response.ok) {
                 return res.status(200).json({ success: true, message: 'Data saved globally.' });
