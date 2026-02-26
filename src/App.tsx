@@ -90,9 +90,6 @@ function App() {
   // For production, fallback to false.
   const isAdmin = user?.id === ADMIN_ID || !user;
 
-  // Compute what categories the user is allowed to see
-  const visibleCategories = categories.filter(c => isAdmin || import.meta.env.DEV || isPrivateSubscribed || !c.isPrivate);
-
   const categoryItems = selectedCategory ? items.filter(i => i.categoryId === selectedCategory.id) : [];
 
   if (isCheckingSub || isDataLoading) {
@@ -114,8 +111,19 @@ function App() {
         {!selectedCategory ? (
           <Dashboard
             key="dashboard"
-            categories={visibleCategories}
-            onSelectCategory={setSelectedCategory}
+            categories={categories}
+            isPrivateSubscribed={isAdmin || import.meta.env.DEV || isPrivateSubscribed}
+            onSelectCategory={(cat) => {
+              if (cat.isPrivate && !isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                try {
+                  tg.showAlert('Для доступу до цієї категорії потрібна VIP підписка на приватну групу!');
+                } catch (e) {
+                  alert('Для доступу до цієї категорії потрібна VIP підписка!');
+                }
+                return;
+              }
+              setSelectedCategory(cat);
+            }}
           />
         ) : (
           <ContentView

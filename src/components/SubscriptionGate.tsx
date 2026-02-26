@@ -50,7 +50,7 @@ export const SubscriptionGate: React.FC<SubscriptionGateProps> = ({ onRetry, err
                 </button>
                 {error && (
                     <p className="text-xs text-red-400 mt-2 break-words max-w-full px-4 text-center">
-                        Деталі помилки: {error}
+                        Помилка перевірки доступу. Будь ласка, спробуйте ще раз.
                     </p>
                 )}
             </motion.div>

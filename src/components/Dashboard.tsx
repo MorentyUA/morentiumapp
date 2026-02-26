@@ -5,6 +5,7 @@ import { CategoryCard } from './CategoryCard';
 
 interface DashboardProps {
     categories: Category[];
+    isPrivateSubscribed: boolean;
     onSelectCategory: (category: Category) => void;
 }
 
@@ -21,7 +22,7 @@ const item = {
     show: { y: 0, opacity: 1 }
 };
 
-export const Dashboard: React.FC<DashboardProps> = ({ categories, onSelectCategory }) => {
+export const Dashboard: React.FC<DashboardProps> = ({ categories, isPrivateSubscribed, onSelectCategory }) => {
     return (
         <motion.div
             variants={container}
@@ -40,7 +41,11 @@ export const Dashboard: React.FC<DashboardProps> = ({ categories, onSelectCatego
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {categories.map(category => (
                     <motion.div key={category.id} variants={item}>
-                        <CategoryCard category={category} onClick={() => onSelectCategory(category)} />
+                        <CategoryCard
+                            category={category}
+                            isLocked={category.isPrivate && !isPrivateSubscribed}
+                            onClick={() => onSelectCategory(category)}
+                        />
                     </motion.div>
                 ))}
             </div>
