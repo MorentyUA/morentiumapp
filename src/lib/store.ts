@@ -47,7 +47,7 @@ export async function saveItems(items: Item[]) {
 // Function to save both simultaneously to edge config via our API
 export async function saveStoreData(categories: Category[], items: Item[]) {
     try {
-        await fetch('/api/data', {
+        const res = await fetch('/api/data', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -59,7 +59,13 @@ export async function saveStoreData(categories: Category[], items: Item[]) {
                 adminId: 'secure-token'
             })
         });
-    } catch (e) {
+
+        if (!res.ok) {
+            const data = await res.json();
+            throw new Error(data.error?.error?.message || data.error?.message || JSON.stringify(data.error) || 'Unknown save error');
+        }
+    } catch (e: any) {
         console.error("Failed to save data explicitly", e);
+        throw e; // Bubble up for the UI to catch
     }
 }

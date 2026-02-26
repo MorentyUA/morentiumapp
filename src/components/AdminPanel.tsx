@@ -14,6 +14,7 @@ interface AdminPanelProps {
 export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDataChange }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string>('');
     const [activeTab, setActiveTab] = useState<'categories' | 'items'>('categories');
     const { HapticFeedback } = useTelegram();
 
@@ -37,50 +38,69 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
     const handleAddCategory = async () => {
         if (!catTitle || isSaving) return;
         setIsSaving(true);
-        const newCat: Category = {
-            id: 'cat-' + Date.now(),
-            title: catTitle,
-            description: catDesc,
-            coverImage: catImg || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80',
-        };
-        await saveCategories([...categories, newCat]);
-        setCatTitle(''); setCatDesc(''); setCatImg('');
-        onDataChange();
+        setSaveError('');
+        try {
+            const newCat: Category = {
+                id: 'cat-' + Date.now(),
+                title: catTitle,
+                description: catDesc,
+                coverImage: catImg || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80',
+            };
+            await saveCategories([...categories, newCat]);
+            setCatTitle(''); setCatDesc(''); setCatImg('');
+            onDataChange();
+        } catch (e: any) {
+            setSaveError(e.message || "Failed to add category");
+        }
         setIsSaving(false);
     };
 
     const handleDeleteCategory = async (id: string) => {
         if (isSaving) return;
         setIsSaving(true);
-        await saveCategories(categories.filter(c => c.id !== id));
-        // Also delete associated items
-        await saveItems(items.filter(i => i.categoryId !== id));
-        onDataChange();
+        setSaveError('');
+        try {
+            await saveCategories(categories.filter(c => c.id !== id));
+            await saveItems(items.filter(i => i.categoryId !== id));
+            onDataChange();
+        } catch (e: any) {
+            setSaveError(e.message || "Failed to delete category");
+        }
         setIsSaving(false);
     };
 
     const handleAddItem = async () => {
         if (!itemTitle || !itemCatId || isSaving) return;
         setIsSaving(true);
-        const newItem: Item = {
-            id: 'item-' + Date.now(),
-            categoryId: itemCatId,
-            type: itemType,
-            title: itemTitle,
-            content: itemContent,
-            url: itemUrl,
-        };
-        await saveItems([...items, newItem]);
-        setItemTitle(''); setItemContent(''); setItemUrl('');
-        onDataChange();
+        setSaveError('');
+        try {
+            const newItem: Item = {
+                id: 'item-' + Date.now(),
+                categoryId: itemCatId,
+                type: itemType,
+                title: itemTitle,
+                content: itemContent,
+                url: itemUrl,
+            };
+            await saveItems([...items, newItem]);
+            setItemTitle(''); setItemContent(''); setItemUrl('');
+            onDataChange();
+        } catch (e: any) {
+            setSaveError(e.message || "Failed to add item");
+        }
         setIsSaving(false);
     };
 
     const handleDeleteItem = async (id: string) => {
         if (isSaving) return;
         setIsSaving(true);
-        await saveItems(items.filter(i => i.id !== id));
-        onDataChange();
+        setSaveError('');
+        try {
+            await saveItems(items.filter(i => i.id !== id));
+            onDataChange();
+        } catch (e: any) {
+            setSaveError(e.message || "Failed to delete item");
+        }
         setIsSaving(false);
     };
 
@@ -124,6 +144,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                                     Items
                                 </button>
                             </div>
+
+                            {saveError && (
+                                <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
+                                    <p className="font-bold">Помилка збереження (Error saving to server):</p>
+                                    <p className="break-all">{saveError}</p>
+                                </div>
+                            )}
 
                             {activeTab === 'categories' && (
                                 <div className="space-y-6">
