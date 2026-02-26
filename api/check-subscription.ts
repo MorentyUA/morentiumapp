@@ -40,14 +40,14 @@ export default async function handler(req: any, res: any) {
       const isSubscribed = ['member', 'administrator', 'creator', 'restricted'].includes(status);
       return res.status(200).json({
         isSubscribed,
-        debug: !isSubscribed ? `ID: ${userId} is present but status is "${status}".` : null
+        debug: !isSubscribed ? `Користувач (ID: ${userId}) існує, але статус: "${status}".` : null
       });
     } else {
       console.error("Telegram API Error:", data.description);
       return res.status(200).json({
         isSubscribed: false,
         error: data.description,
-        debug: `Telegram Error: ${data.description} (Channel: ${CHANNEL_ID})`
+        debug: `Помилка Telegram: ${data.description} (Група: ${CHANNEL_ID})`
       });
     }
   } catch (error) {

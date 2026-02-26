@@ -27,9 +27,9 @@ export const SubscriptionGate: React.FC<SubscriptionGateProps> = ({ onRetry, err
                     <Lock className="w-10 h-10 text-blue-400" />
                 </div>
                 <div>
-                    <h2 className="text-2xl font-bold mb-2">Доступ закрыт</h2>
+                    <h2 className="text-2xl font-bold mb-2">Доступ закрито</h2>
                     <p className="text-slate-400 text-sm leading-relaxed">
-                        Чтобы использовать это приложение, вы должны состоять в нашей закрытой группе.
+                        Щоб користуватися цим застосунком, ви маєте бути учасником нашої закритої групи.
                     </p>
                 </div>
                 <a
@@ -38,7 +38,7 @@ export const SubscriptionGate: React.FC<SubscriptionGateProps> = ({ onRetry, err
                     rel="noopener noreferrer"
                     className="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 rounded-xl transition-colors block shadow-lg"
                 >
-                    Вступить
+                    Долучитися
                 </a>
                 <button
                     onClick={handleRetry}
@@ -46,11 +46,11 @@ export const SubscriptionGate: React.FC<SubscriptionGateProps> = ({ onRetry, err
                     className="text-sm text-slate-500 hover:text-white transition-colors flex items-center justify-center space-x-2"
                 >
                     <RefreshCw className={`w-4 h-4 ${isChecking ? 'animate-spin' : ''}`} />
-                    <span>Я уже вступил</span>
+                    <span>Я вже долучився</span>
                 </button>
                 {error && (
                     <p className="text-xs text-red-400 mt-2 break-words max-w-full px-4 text-center">
-                        Детали ошибки: {error}
+                        Деталі помилки: {error}
                     </p>
                 )}
             </motion.div>
