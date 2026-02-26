@@ -46,7 +46,7 @@ export const ContentView: React.FC<ContentViewProps> = ({ category, items, onBac
         if (selectedItem && selectedItem.url) {
             try {
                 MainButton.setParams({
-                    text: selectedItem.type === 'youtube' ? 'OPEN VIDEO' : 'OPEN LINK',
+                    text: selectedItem.type === 'youtube' ? 'ВІДКРИТИ ВІДЕО' : 'ВІДКРИТИ ПОСИЛАННЯ',
                     is_visible: true,
                 });
                 MainButton.onClick(handleMainBtnClick);
@@ -90,8 +90,8 @@ export const ContentView: React.FC<ContentViewProps> = ({ category, items, onBac
                         <div className="w-16 h-16 mx-auto mb-4 bg-slate-800 rounded-full flex items-center justify-center">
                             <span className="text-2xl">📭</span>
                         </div>
-                        <h3 className="text-lg font-semibold text-white mb-2">Empty Category</h3>
-                        <p className="text-slate-400">No content available in this category yet. Check back later!</p>
+                        <h3 className="text-lg font-semibold text-white mb-2">Категорія порожня</h3>
+                        <p className="text-slate-400">В цій категорії ще немає контенту. Загляньте сюди пізніше!</p>
                     </div>
                 ) : (
                     items.map((item, index) => (

@@ -48,7 +48,7 @@ export const CategoryCard: React.FC<CategoryCardProps> = ({ category, isLocked, 
                 </p>
 
                 <div className={`flex items-center text-sm font-semibold uppercase tracking-wider ${isLocked ? 'text-slate-500' : 'text-blue-400'}`}>
-                    <span>{isLocked ? 'VIP Only' : 'Explore'}</span>
+                    <span>{isLocked ? 'Тільки VIP' : 'Дивитись'}</span>
                     {!isLocked && <ChevronRight className="w-4 h-4 ml-1 group-hover:translate-x-2 transition-transform duration-300" />}
                 </div>
             </div>
