@@ -8,7 +8,7 @@ import { useTelegram } from '../hooks/useTelegram';
 interface AdminPanelProps {
     categories: Category[];
     items: Item[];
-    onDataChange: () => void;
+    onDataChange: (newCategories?: Category[], newItems?: Item[]) => void;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDataChange }) => {
@@ -46,9 +46,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                 description: catDesc,
                 coverImage: catImg || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80',
             };
-            await saveCategories([...categories, newCat]);
+            const newData = await saveCategories([...categories, newCat]);
             setCatTitle(''); setCatDesc(''); setCatImg('');
-            onDataChange();
+            onDataChange(newData.categories, newData.items);
         } catch (e: any) {
             setSaveError(e.message || "Failed to add category");
         }
@@ -61,8 +61,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
         setSaveError('');
         try {
             await saveCategories(categories.filter(c => c.id !== id));
-            await saveItems(items.filter(i => i.categoryId !== id));
-            onDataChange();
+            const newData = await saveItems(items.filter(i => i.categoryId !== id));
+            onDataChange(newData.categories, newData.items);
         } catch (e: any) {
             setSaveError(e.message || "Failed to delete category");
         }
@@ -82,9 +82,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                 content: itemContent,
                 url: itemUrl,
             };
-            await saveItems([...items, newItem]);
+            const newData = await saveItems([...items, newItem]);
             setItemTitle(''); setItemContent(''); setItemUrl('');
-            onDataChange();
+            onDataChange(newData.categories, newData.items);
         } catch (e: any) {
             setSaveError(e.message || "Failed to add item");
         }
@@ -96,8 +96,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
         setIsSaving(true);
         setSaveError('');
         try {
-            await saveItems(items.filter(i => i.id !== id));
-            onDataChange();
+            const newData = await saveItems(items.filter(i => i.id !== id));
+            onDataChange(newData.categories, newData.items);
         } catch (e: any) {
             setSaveError(e.message || "Failed to delete item");
         }

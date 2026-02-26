@@ -30,22 +30,18 @@ export async function getItems(): Promise<Item[]> {
     return defaultItems;
 }
 
-export async function saveCategories(categories: Category[]) {
-    // In a real app we'd validate, but for now we just pass it to the backend.
-    // We also need to send the items at the same time so we don't overwrite them with null, 
-    // or we adjust the API to handle partial updates. 
-    // For simplicity, we'll fetch current items first, then save both.
+export async function saveCategories(categories: Category[]): Promise<{ categories: Category[], items: Item[] }> {
     const items = await getItems();
-    await saveStoreData(categories, items);
+    return await saveStoreData(categories, items);
 }
 
-export async function saveItems(items: Item[]) {
+export async function saveItems(items: Item[]): Promise<{ categories: Category[], items: Item[] }> {
     const categories = await getCategories();
-    await saveStoreData(categories, items);
+    return await saveStoreData(categories, items);
 }
 
 // Function to save both simultaneously to edge config via our API
-export async function saveStoreData(categories: Category[], items: Item[]) {
+export async function saveStoreData(categories: Category[], items: Item[]): Promise<{ categories: Category[], items: Item[] }> {
     try {
         const res = await fetch('/api/data', {
             method: 'POST',
@@ -64,6 +60,10 @@ export async function saveStoreData(categories: Category[], items: Item[]) {
             const data = await res.json();
             throw new Error(data.error?.error?.message || data.error?.message || JSON.stringify(data.error) || 'Unknown save error');
         }
+
+        // Return the successfully saved payload so the UI can update immediately
+        // bypassing the Edge Config geographical propagation delay (usually ~1-5s).
+        return { categories, items };
     } catch (e: any) {
         console.error("Failed to save data explicitly", e);
         throw e; // Bubble up for the UI to catch

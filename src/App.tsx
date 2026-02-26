@@ -20,7 +20,14 @@ function App() {
   // Use Telegram hooks
   const { user, tg } = useTelegram();
 
-  const loadData = async () => {
+  const loadData = async (newCategories?: Category[], newItems?: Item[]) => {
+    if (newCategories && newItems) {
+      // Direct state update from save bypassing the GET fetch cache
+      setCategories(newCategories);
+      setItems(newItems);
+      return;
+    }
+
     setIsDataLoading(true);
     const fetchedCategories = await getCategories();
     const fetchedItems = await getItems();
