@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ExternalLink, FileText, Play } from 'lucide-react';
 import { type Item } from '../types';
 
@@ -8,7 +8,44 @@ interface ItemCardProps {
 }
 
 export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
+    const [isExpanded, setIsExpanded] = useState(false);
     const selectedStyle = isSelected ? "ring-2 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "border border-white/5";
+
+    const renderContent = () => {
+        if (!item.content) return null;
+
+        const lines = item.content.split('\n');
+        // Define "long" as > 150 chars or > 4 lines
+        const isLongText = item.content.length > 150 || lines.length > 4;
+
+        let displayText = item.content;
+        if (!isExpanded && isLongText) {
+            if (lines.length > 4) {
+                displayText = lines.slice(0, 4).join('\n') + '...';
+            } else {
+                displayText = item.content.slice(0, 150) + '...';
+            }
+        }
+
+        return (
+            <div className="mt-2">
+                <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
+                    {displayText}
+                </p>
+                {isLongText && (
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setIsExpanded(!isExpanded);
+                        }}
+                        className="mt-2 text-blue-400 text-sm font-semibold hover:text-blue-300 transition-colors"
+                    >
+                        {isExpanded ? 'Згорнути' : 'Читати повністю...'}
+                    </button>
+                )}
+            </div>
+        );
+    };
     if (item.type === 'youtube' && item.url) {
         // Extract video ID safely
         let videoId = '';
@@ -50,29 +87,34 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
                         </div>
                     )}
                 </div>
-                <p className="text-slate-300 text-sm leading-relaxed">{item.content}</p>
+                {renderContent()}
             </div>
         );
     }
 
     if (item.type === 'link') {
         return (
-            <a
-                href={item.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`glass-card p-5 flex items-center justify-between group hover:bg-white/10 transition-colors block border-l-4 border-l-blue-500 ${selectedStyle}`}
-            >
-                <div className="pr-4">
-                    <h4 className="font-bold text-xl text-white mb-2 group-hover:text-blue-400 transition-colors">
-                        {item.title}
-                    </h4>
-                    <p className="text-sm text-slate-400 leading-relaxed">{item.content}</p>
+            <div className={`glass-card p-5 block border-l-4 border-l-blue-500 ${selectedStyle}`}>
+                <div className="flex flex-col">
+                    <div className="flex items-center space-x-3 text-blue-400 mb-2">
+                        <div className="p-2 bg-blue-500/10 rounded-xl">
+                            <ExternalLink className="w-5 h-5 fill-current" />
+                        </div>
+                        <h4 className="font-bold text-xl text-white">
+                            {item.title}
+                        </h4>
+                    </div>
+                    {renderContent()}
+                    <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-4 w-full bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center shadow-lg"
+                    >
+                        <ExternalLink className="w-5 h-5 mr-2" /> Відкрити посилання
+                    </a>
                 </div>
-                <div className="bg-blue-500/10 p-3 rounded-full text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all shadow-lg">
-                    <ExternalLink className="w-6 h-6" />
-                </div>
-            </a>
+            </div>
         );
     }
 
@@ -85,9 +127,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
                 </div>
                 <h4 className="font-bold text-xl text-white">{item.title}</h4>
             </div>
-            <p className="text-slate-300 whitespace-pre-wrap leading-relaxed">
-                {item.content}
-            </p>
+            {renderContent()}
         </div>
     );
 };
