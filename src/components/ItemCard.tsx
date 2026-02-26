@@ -8,6 +8,7 @@ interface ItemCardProps {
 }
 
 export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
+    const tg = (window as any).Telegram?.WebApp;
     const [isExpanded, setIsExpanded] = useState(false);
     const selectedStyle = isSelected ? "ring-2 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "border border-white/5";
 
@@ -105,14 +106,23 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
                         </h4>
                     </div>
                     {renderContent()}
-                    <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                    <button
+                        onClick={() => {
+                            if (!item.url) return;
+                            if (tg) {
+                                if (item.url.includes('t.me/') || item.url.includes('telegram.me/')) {
+                                    tg.openTelegramLink(item.url);
+                                } else {
+                                    tg.openLink(item.url);
+                                }
+                            } else {
+                                window.open(item.url, '_blank');
+                            }
+                        }}
                         className="mt-4 w-full bg-blue-600/20 hover:bg-blue-600 text-blue-400 hover:text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center shadow-lg"
                     >
                         <ExternalLink className="w-5 h-5 mr-2" /> Відкрити посилання
-                    </a>
+                    </button>
                 </div>
             </div>
         );
