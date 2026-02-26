@@ -28,10 +28,42 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
             }
         }
 
+        const renderTextWithLinks = (text: string) => {
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            const parts = text.split(urlRegex);
+            return parts.map((part, i) => {
+                if (part.match(urlRegex)) {
+                    return (
+                        <a
+                            key={i}
+                            href={part}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (tg) {
+                                    if (part.includes('t.me/') || part.includes('telegram.me/')) {
+                                        tg.openTelegramLink(part);
+                                    } else {
+                                        tg.openLink(part);
+                                    }
+                                } else {
+                                    window.open(part, '_blank');
+                                }
+                            }}
+                            className="text-blue-400 hover:text-blue-300 transition-colors underline break-all"
+                        >
+                            {part}
+                        </a>
+                    );
+                }
+                return part;
+            });
+        };
+
         return (
             <div className="mt-2">
                 <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">
-                    {displayText}
+                    {renderTextWithLinks(displayText)}
                 </p>
                 {isLongText && (
                     <button
