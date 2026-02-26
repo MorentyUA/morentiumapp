@@ -117,14 +117,14 @@ function App() {
         )}
       </AnimatePresence>
 
-      {isAdmin && (
+      {(isAdmin || import.meta.env.DEV) && (
         <AdminPanel
           categories={categories}
           items={items}
           onDataChange={loadData}
         />
       )}
-    </div>
+    </div >
   );
 }
 
