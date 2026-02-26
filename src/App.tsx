@@ -14,14 +14,19 @@ function App() {
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [isSubscribed, setIsSubscribed] = useState<boolean | null>(null);
   const [isCheckingSub, setIsCheckingSub] = useState(true);
+  const [isDataLoading, setIsDataLoading] = useState(true);
   const [subError, setSubError] = useState<string>('');
 
   // Use Telegram hooks
   const { user, tg } = useTelegram();
 
-  const loadData = () => {
-    setCategories(getCategories());
-    setItems(getItems());
+  const loadData = async () => {
+    setIsDataLoading(true);
+    const fetchedCategories = await getCategories();
+    const fetchedItems = await getItems();
+    setCategories(fetchedCategories);
+    setItems(fetchedItems);
+    setIsDataLoading(false);
   };
 
   useEffect(() => {
@@ -73,7 +78,7 @@ function App() {
 
   const categoryItems = selectedCategory ? items.filter(i => i.categoryId === selectedCategory.id) : [];
 
-  if (isCheckingSub) {
+  if (isCheckingSub || isDataLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0f172a] text-white">
         <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>

@@ -1,37 +1,65 @@
 import { type Category, type Item, defaultCategories, defaultItems } from '../types';
 
-const CATEGORIES_KEY = 'twa_categories';
-const ITEMS_KEY = 'twa_items';
-
-export function getCategories(): Category[] {
-    const data = localStorage.getItem(CATEGORIES_KEY);
-    if (data) {
-        return JSON.parse(data);
+export async function getCategories(): Promise<Category[]> {
+    try {
+        const res = await fetch('/api/data');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.categories && data.categories.length > 0) {
+                return data.categories;
+            }
+        }
+    } catch (e) {
+        console.error("Failed to fetch categories", e);
     }
-    // Initialize with defaults if empty
-    localStorage.setItem(CATEGORIES_KEY, JSON.stringify(defaultCategories));
     return defaultCategories;
 }
 
-export function saveCategories(categories: Category[]) {
-    localStorage.setItem(CATEGORIES_KEY, JSON.stringify(categories));
-}
-
-export function getItems(): Item[] {
-    const data = localStorage.getItem(ITEMS_KEY);
-    if (data) {
-        return JSON.parse(data);
+export async function getItems(): Promise<Item[]> {
+    try {
+        const res = await fetch('/api/data');
+        if (res.ok) {
+            const data = await res.json();
+            if (data.items && data.items.length > 0) {
+                return data.items;
+            }
+        }
+    } catch (e) {
+        console.error("Failed to fetch items", e);
     }
-    // Initialize with defaults if empty
-    localStorage.setItem(ITEMS_KEY, JSON.stringify(defaultItems));
     return defaultItems;
 }
 
-export function saveItems(items: Item[]) {
-    localStorage.setItem(ITEMS_KEY, JSON.stringify(items));
+export async function saveCategories(categories: Category[]) {
+    // In a real app we'd validate, but for now we just pass it to the backend.
+    // We also need to send the items at the same time so we don't overwrite them with null, 
+    // or we adjust the API to handle partial updates. 
+    // For simplicity, we'll fetch current items first, then save both.
+    const items = await getItems();
+    await saveStoreData(categories, items);
 }
 
-export function getItemsByCategory(categoryId: string): Item[] {
-    const items = getItems();
-    return items.filter(item => item.categoryId === categoryId);
+export async function saveItems(items: Item[]) {
+    const categories = await getCategories();
+    await saveStoreData(categories, items);
+}
+
+// Function to save both simultaneously to edge config via our API
+export async function saveStoreData(categories: Category[], items: Item[]) {
+    try {
+        await fetch('/api/data', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                categories,
+                items,
+                // In a production app, pass the admin ID or a secure token here
+                adminId: 'secure-token'
+            })
+        });
+    } catch (e) {
+        console.error("Failed to save data explicitly", e);
+    }
 }

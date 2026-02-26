@@ -13,6 +13,7 @@ interface AdminPanelProps {
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDataChange }) => {
     const [isOpen, setIsOpen] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
     const [activeTab, setActiveTab] = useState<'categories' | 'items'>('categories');
     const { HapticFeedback } = useTelegram();
 
@@ -33,28 +34,34 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
         setIsOpen(!isOpen);
     };
 
-    const handleAddCategory = () => {
-        if (!catTitle) return;
+    const handleAddCategory = async () => {
+        if (!catTitle || isSaving) return;
+        setIsSaving(true);
         const newCat: Category = {
             id: 'cat-' + Date.now(),
             title: catTitle,
             description: catDesc,
             coverImage: catImg || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80',
         };
-        saveCategories([...categories, newCat]);
+        await saveCategories([...categories, newCat]);
         setCatTitle(''); setCatDesc(''); setCatImg('');
         onDataChange();
+        setIsSaving(false);
     };
 
-    const handleDeleteCategory = (id: string) => {
-        saveCategories(categories.filter(c => c.id !== id));
+    const handleDeleteCategory = async (id: string) => {
+        if (isSaving) return;
+        setIsSaving(true);
+        await saveCategories(categories.filter(c => c.id !== id));
         // Also delete associated items
-        saveItems(items.filter(i => i.categoryId !== id));
+        await saveItems(items.filter(i => i.categoryId !== id));
         onDataChange();
+        setIsSaving(false);
     };
 
-    const handleAddItem = () => {
-        if (!itemTitle || !itemCatId) return;
+    const handleAddItem = async () => {
+        if (!itemTitle || !itemCatId || isSaving) return;
+        setIsSaving(true);
         const newItem: Item = {
             id: 'item-' + Date.now(),
             categoryId: itemCatId,
@@ -63,14 +70,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
             content: itemContent,
             url: itemUrl,
         };
-        saveItems([...items, newItem]);
+        await saveItems([...items, newItem]);
         setItemTitle(''); setItemContent(''); setItemUrl('');
         onDataChange();
+        setIsSaving(false);
     };
 
-    const handleDeleteItem = (id: string) => {
-        saveItems(items.filter(i => i.id !== id));
+    const handleDeleteItem = async (id: string) => {
+        if (isSaving) return;
+        setIsSaving(true);
+        await saveItems(items.filter(i => i.id !== id));
         onDataChange();
+        setIsSaving(false);
     };
 
     return (
@@ -121,8 +132,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                                         <input type="text" placeholder="Title" value={catTitle} onChange={e => setCatTitle(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
                                         <input type="text" placeholder="Description" value={catDesc} onChange={e => setCatDesc(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
                                         <input type="text" placeholder="Image URL (optional)" value={catImg} onChange={e => setCatImg(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
-                                        <button onClick={handleAddCategory} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center">
-                                            <Plus className="w-5 h-5 mr-2" /> Add Category
+                                        <button onClick={handleAddCategory} disabled={isSaving} className={`w-full ${isSaving ? 'bg-emerald-800 text-emerald-400' : 'bg-emerald-600 hover:bg-emerald-500 text-white'} font-bold py-3 rounded-lg transition-colors flex items-center justify-center`}>
+                                            <Plus className="w-5 h-5 mr-2" /> {isSaving ? "Saving..." : "Add Category"}
                                         </button>
                                     </div>
 
@@ -165,8 +176,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                                             <input type="text" placeholder="URL Target" value={itemUrl} onChange={e => setItemUrl(e.target.value)} className="w-full bg-black/30 border border-white/10 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
                                         )}
 
-                                        <button onClick={handleAddItem} className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-3 rounded-lg transition-colors flex items-center justify-center">
-                                            <Plus className="w-5 h-5 mr-2" /> Add Item
+                                        <button onClick={handleAddItem} disabled={isSaving} className={`w-full ${isSaving ? 'bg-emerald-800 text-emerald-400' : 'bg-emerald-600 hover:bg-emerald-500 text-white'} font-bold py-3 rounded-lg transition-colors flex items-center justify-center`}>
+                                            <Plus className="w-5 h-5 mr-2" /> {isSaving ? "Saving..." : "Add Item"}
                                         </button>
                                     </div>
 
