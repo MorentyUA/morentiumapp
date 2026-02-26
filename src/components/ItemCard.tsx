@@ -12,11 +12,15 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
     if (item.type === 'youtube' && item.url) {
         // Extract video ID safely
         let videoId = '';
+        let isShort = false;
         try {
             if (item.url.includes('youtu.be/')) {
                 videoId = item.url.split('youtu.be/')[1].split('?')[0];
             } else if (item.url.includes('youtube.com/watch')) {
                 videoId = item.url.split('v=')[1]?.split('&')[0];
+            } else if (item.url.includes('youtube.com/shorts/')) {
+                videoId = item.url.split('shorts/')[1]?.split('?')[0];
+                isShort = true;
             }
         } catch (e) {
             console.error('Invalid Youtube URL', item.url);
@@ -30,7 +34,7 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
                     </div>
                     <h4 className="font-bold text-xl text-white">{item.title}</h4>
                 </div>
-                <div className="aspect-video w-full rounded-xl overflow-hidden bg-[#0f172a] border border-white/10 shadow-inner">
+                <div className={`${isShort ? 'aspect-[9/16] max-h-[70vh] mx-auto w-auto' : 'aspect-video w-full'} rounded-xl overflow-hidden bg-[#0f172a] border border-white/10 shadow-inner flex justify-center`}>
                     {videoId ? (
                         <iframe
                             className="w-full h-full"
