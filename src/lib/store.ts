@@ -1,5 +1,5 @@
 import { type Category, type Item } from '../types';
-import localData from './data.json';
+import localData from '../data.json';
 
 export async function getCategories(): Promise<Category[]> {
     return localData.categories as Category[];

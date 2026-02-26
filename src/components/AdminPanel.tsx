@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, Trash2, X, Settings } from 'lucide-react';
 import { type Category, type Item, type ItemType } from '../types';
 import { saveCategories, saveItems } from '../lib/store';
@@ -24,11 +24,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
     const [catImg, setCatImg] = useState('');
 
     // Item Form
-    const [itemCatId, setItemCatId] = useState(categories[0]?.id || '');
+    const [itemCatId, setItemCatId] = useState(categories.length > 0 ? categories[0].id : '');
     const [itemType, setItemType] = useState<ItemType>('link');
     const [itemTitle, setItemTitle] = useState('');
     const [itemContent, setItemContent] = useState('');
     const [itemUrl, setItemUrl] = useState('');
+
+    // Keep itemCatId in sync if categories are added/removed and currently empty
+    useEffect(() => {
+        if (!itemCatId && categories.length > 0) {
+            setItemCatId(categories[0].id);
+        }
+    }, [categories]);
 
     const togglePanel = () => {
         try { HapticFeedback.impactOccurred('medium'); } catch (e) { }
@@ -70,7 +77,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
     };
 
     const handleAddItem = async () => {
-        if (!itemTitle || !itemCatId || isSaving) return;
+        if (!itemTitle) { setSaveError("Title is required"); return; }
+        if (!itemCatId) { setSaveError("Please create a category first"); return; }
+        if (isSaving) return;
+
         setIsSaving(true);
         setSaveError('');
         try {
