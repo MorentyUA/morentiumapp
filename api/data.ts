@@ -37,13 +37,24 @@ export default async function handler(req: any, res: any) {
             // For this simplified version, we process the update.
 
             // We need VERCEL_API_TOKEN, VERCEL_TEAM_ID (or user ID), and EDGE_CONFIG_ID 
-            // to hit the Vercel REST API and update the Edge Config.
             const API_TOKEN = process.env.VERCEL_API_TOKEN;
-            const EDGE_CONFIG_ID = process.env.EDGE_CONFIG_ID;
+            let EDGE_CONFIG_ID = process.env.EDGE_CONFIG_ID;
+            const EDGE_CONFIG = process.env.EDGE_CONFIG;
             const TEAM_ID = process.env.VERCEL_TEAM_ID;
 
-            if (!API_TOKEN || !EDGE_CONFIG_ID) {
-                return res.status(500).json({ error: 'Missing Vercel API credentials in environment variables.' });
+            // Auto-extract Edge Config ID from the automatic connection string
+            if (!EDGE_CONFIG_ID && EDGE_CONFIG) {
+                const match = EDGE_CONFIG.match(/ecfg_[a-zA-Z0-9]+/);
+                if (match) {
+                    EDGE_CONFIG_ID = match[0];
+                }
+            }
+
+            if (!API_TOKEN) {
+                return res.status(500).json({ error: 'Missing VERCEL_API_TOKEN in environment variables.' });
+            }
+            if (!EDGE_CONFIG_ID) {
+                return res.status(500).json({ error: 'Missing EDGE_CONFIG_ID. Could not extract from connection string.' });
             }
 
             // Build the Vercel API URL
