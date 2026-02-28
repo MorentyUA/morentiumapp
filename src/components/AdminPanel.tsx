@@ -15,8 +15,35 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
     const [isOpen, setIsOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [saveError, setSaveError] = useState<string>('');
-    const [activeTab, setActiveTab] = useState<'categories' | 'items'>('categories');
-    const { HapticFeedback } = useTelegram();
+    const [activeTab, setActiveTab] = useState<'categories' | 'items' | 'broadcast'>('categories');
+    const { HapticFeedback, tg } = useTelegram();
+
+    // Broadcast Form
+    const [broadcastMessage, setBroadcastMessage] = useState('');
+    const [isBroadcasting, setIsBroadcasting] = useState(false);
+
+    const handleBroadcast = async () => {
+        if (!broadcastMessage.trim()) { setSaveError("Message is required"); return; }
+        if (isBroadcasting) return;
+        setIsBroadcasting(true);
+        setSaveError('');
+        try {
+            const response = await fetch('/api/broadcast', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: broadcastMessage })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || 'Broadcast failed');
+
+            setBroadcastMessage('');
+            if (tg && tg.showAlert) tg.showAlert(data.message || 'Розсилка успішна!');
+            else alert(data.message || 'Розсилка успішна!');
+        } catch (e: any) {
+            setSaveError(e.message || "Failed to broadcast");
+        }
+        setIsBroadcasting(false);
+    };
 
     // Category Form
     const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
@@ -205,15 +232,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                             <div className="flex space-x-2 mb-6 bg-white/5 p-1 rounded-lg">
                                 <button
                                     onClick={() => setActiveTab('categories')}
-                                    className={`flex-1 py-2 rounded-md transition-colors ${activeTab === 'categories' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                                    className={`flex-1 py-2 text-sm sm:text-base rounded-md transition-colors ${activeTab === 'categories' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
                                 >
-                                    Categories
+                                    Категорії
                                 </button>
                                 <button
                                     onClick={() => setActiveTab('items')}
-                                    className={`flex-1 py-2 rounded-md transition-colors ${activeTab === 'items' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                                    className={`flex-1 py-2 text-sm sm:text-base rounded-md transition-colors ${activeTab === 'items' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'}`}
                                 >
-                                    Items
+                                    Контент
+                                </button>
+                                <button
+                                    onClick={() => setActiveTab('broadcast')}
+                                    className={`flex-1 py-2 text-sm sm:text-base rounded-md transition-colors ${activeTab === 'broadcast' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
+                                >
+                                    Розсилка
                                 </button>
                             </div>
 
@@ -329,6 +362,39 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                                     </div>
                                 </div>
                             )}
+
+                            {activeTab === 'broadcast' && (
+                                <div className="space-y-6">
+                                    <div className="glass-card p-4 sm:p-6 space-y-4 border-indigo-500/20 bg-indigo-500/5">
+                                        <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-400">
+                                            Глобальна Розсилка
+                                        </h3>
+                                        <p className="text-sm text-slate-400 leading-relaxed">
+                                            Напишіть повідомлення, яке буде надіслано <b>всім користувачам</b> вашого бота. Використовуйте HTML-теги для форматування (<code>&lt;b&gt;жирний&lt;/b&gt;</code>, <code>&lt;i&gt;курсив&lt;/i&gt;</code>).
+                                        </p>
+
+                                        <textarea
+                                            placeholder="Введіть текст розсилки..."
+                                            value={broadcastMessage}
+                                            onChange={e => setBroadcastMessage(e.target.value)}
+                                            rows={6}
+                                            className="w-full bg-black/40 border border-indigo-500/20 rounded-xl p-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 shadow-inner"
+                                        />
+
+                                        <button
+                                            onClick={handleBroadcast}
+                                            disabled={isBroadcasting || !broadcastMessage.trim()}
+                                            className={`w-full font-bold py-4 rounded-xl transition-colors flex items-center justify-center text-lg ${isBroadcasting || !broadcastMessage.trim()
+                                                ? 'bg-indigo-800/50 text-indigo-300'
+                                                : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/25'
+                                                }`}
+                                        >
+                                            {isBroadcasting ? "Відправлення..." : "📣 Відправити всім"}
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
 
                         </div>
                     </motion.div>

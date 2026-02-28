@@ -1,16 +1,41 @@
 import React, { useState } from 'react';
-import { ExternalLink, FileText, Play } from 'lucide-react';
+import { ExternalLink, FileText, Play, CheckCircle2, Circle } from 'lucide-react';
 import { type Item } from '../types';
 
 interface ItemCardProps {
     item: Item;
     isSelected?: boolean;
+    isCompleted?: boolean;
+    onToggleCompletion?: (e: React.MouseEvent) => void;
 }
 
-export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
+export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isCompleted, onToggleCompletion }) => {
     const tg = (window as any).Telegram?.WebApp;
     const [isExpanded, setIsExpanded] = useState(false);
-    const selectedStyle = isSelected ? "ring-2 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "border border-white/5";
+
+    // Base styles + Selection Rings + Completed Dimming
+    const baseStyle = isSelected ? "ring-2 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "border border-white/5";
+    const completedStyle = isCompleted ? "ring-2 ring-cyan-500 shadow-[0_0_15px_rgba(6,182,212,0.5)] bg-cyan-500/5" : "hover:bg-white/5";
+    // If both are true, cyan wins because it's appended later, which is fine since completion is a stronger state.
+    const selectedStyle = `${baseStyle} ${completedStyle}`;
+
+    const renderToggle = () => (
+        <button
+            onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (onToggleCompletion) onToggleCompletion(e);
+            }}
+            className="ml-auto p-2 -mr-2 flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+        >
+            {isCompleted && (
+                <span className="text-sm font-bold text-cyan-400 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]">
+                    Пройдено
+                </span>
+            )}
+            {isCompleted ? <CheckCircle2 className="w-8 h-8 text-cyan-400 fill-cyan-400/20 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" /> : <Circle className="w-8 h-8 opacity-50 stroke-2" />}
+        </button>
+    );
 
     const renderContent = () => {
         if (!item.content) return null;
@@ -97,12 +122,13 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
         }
 
         return (
-            <div className={`glass-card p-5 space-y-4 transition-all hover:bg-white/5 ${selectedStyle}`}>
+            <div className={`glass-card p-5 space-y-4 transition-all ${selectedStyle}`}>
                 <div className="flex items-center space-x-3 text-red-500 mb-2">
                     <div className="p-2 bg-red-500/10 rounded-xl">
                         <Play className="w-5 h-5 fill-current" />
                     </div>
-                    <h4 className="font-bold text-xl text-white">{item.title}</h4>
+                    <h4 className="font-bold text-xl text-white mr-2">{item.title}</h4>
+                    {renderToggle()}
                 </div>
                 <div className={`${isShort ? 'aspect-[9/16] max-h-[70vh] mx-auto w-auto' : 'aspect-video w-full'} rounded-xl overflow-hidden bg-[#0f172a] border border-white/10 shadow-inner flex justify-center`}>
                     {videoId ? (
@@ -127,15 +153,16 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
 
     if (item.type === 'link') {
         return (
-            <div className={`glass-card p-5 block border-l-4 border-l-blue-500 ${selectedStyle}`}>
+            <div className={`glass-card p-5 block border-l-4 border-l-blue-500 transition-all ${selectedStyle}`}>
                 <div className="flex flex-col">
                     <div className="flex items-center space-x-3 text-blue-400 mb-2">
                         <div className="p-2 bg-blue-500/10 rounded-xl">
                             <ExternalLink className="w-5 h-5 fill-current" />
                         </div>
-                        <h4 className="font-bold text-xl text-white">
+                        <h4 className="font-bold text-xl text-white mr-2">
                             {item.title}
                         </h4>
+                        {renderToggle()}
                     </div>
                     {renderContent()}
                     <button
@@ -162,12 +189,13 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected }) => {
 
     // text type
     return (
-        <div className={`glass-card p-6 border-t border-t-emerald-500/30 ${selectedStyle}`}>
+        <div className={`glass-card p-6 transition-all border-t border-t-emerald-500/30 ${selectedStyle}`}>
             <div className="flex items-center space-x-3 mb-4 text-emerald-400">
                 <div className="p-2 bg-emerald-500/10 rounded-xl">
                     <FileText className="w-5 h-5" />
                 </div>
-                <h4 className="font-bold text-xl text-white">{item.title}</h4>
+                <h4 className="font-bold text-xl text-white mr-2">{item.title}</h4>
+                {renderToggle()}
             </div>
             {renderContent()}
         </div>

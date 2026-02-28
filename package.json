@@ -12,6 +12,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
     "@twa-dev/sdk": "^8.0.2",
+    "@vercel/blob": "^2.3.0",
     "@vercel/edge-config": "latest",
     "@vercel/kv": "^3.0.0",
     "autoprefixer": "^10.4.24",

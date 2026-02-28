@@ -6,6 +6,23 @@ export interface Category {
     isPrivate?: boolean;
 }
 
+export interface YoutubeVideo {
+    id: string;
+    title: string;
+    publishedAt: string;
+    thumbnail: string;
+}
+
+export interface YoutubeChannel {
+    id: string;
+    title: string;
+    customUrl: string;
+    thumbnail: string;
+    subscriberCount: string;
+    viewCount: string;
+    videoCount: string;
+}
+
 export type ItemType = 'youtube' | 'link' | 'text';
 
 export interface Item {

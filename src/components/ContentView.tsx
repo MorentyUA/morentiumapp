@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { type Category, type Item } from '../types';
 import { ItemCard } from './ItemCard';
 import { useTelegram } from '../hooks/useTelegram';
+import { useProgress } from '../hooks/useProgress';
 
 interface ContentViewProps {
     category: Category;
@@ -13,6 +14,7 @@ interface ContentViewProps {
 export const ContentView: React.FC<ContentViewProps> = ({ category, items, onBack }) => {
     const { BackButton, MainButton, HapticFeedback, tg } = useTelegram();
     const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+    const { completedItemIds, toggleItemCompletion } = useProgress();
 
     useEffect(() => {
         try {
@@ -106,7 +108,15 @@ export const ContentView: React.FC<ContentViewProps> = ({ category, items, onBac
                             }}
                             className="cursor-pointer"
                         >
-                            <ItemCard item={item} isSelected={selectedItemId === item.id} />
+                            <ItemCard
+                                item={item}
+                                isSelected={selectedItemId === item.id}
+                                isCompleted={completedItemIds.includes(item.id)}
+                                onToggleCompletion={() => {
+                                    try { HapticFeedback.impactOccurred('light'); } catch { }
+                                    toggleItemCompletion(item.id);
+                                }}
+                            />
                         </motion.div>
                     ))
                 )}
