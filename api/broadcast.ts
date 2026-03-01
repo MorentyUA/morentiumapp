@@ -39,12 +39,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         // 1. Retrieve the master list of user chat IDs
         let chatIds: number[] = [];
-        const { blobs } = await list({ prefix: STORE_FILE });
-        const fileBlob = blobs.find(b => b.pathname === STORE_FILE);
+        const { blobs } = await list({ token: process.env.morespace_READ_WRITE_TOKEN });
+        const storeBlobs = blobs.filter(b => b.pathname.includes('chat_ids'));
+        storeBlobs.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
+        const fileBlob = storeBlobs[0];
 
         if (fileBlob) {
-            const response = await fetch(fileBlob.downloadUrl, {
-                headers: { 'Authorization': `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
+            const response = await fetch(`${fileBlob.url}?t=${Date.now()}`, {
+                cache: 'no-store'
             });
             if (response.ok) {
                 chatIds = await response.json();

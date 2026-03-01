@@ -7,14 +7,19 @@ import { YoutubeTracker } from './components/YoutubeTracker';
 import { BottomNav } from './components/BottomNav';
 import { Profile } from './components/Profile';
 import { YoutubeSpy } from './components/YoutubeSpy';
+import { YoutubeComments } from './components/YoutubeComments';
+import { YoutubeTrends } from './components/YoutubeTrends';
+import { YoutubeSuperSearch } from './components/YoutubeSuperSearch';
 import { getCategories, getItems } from './lib/store';
 import { type Category, type Item, ADMIN_ID } from './types';
 import { useTelegram } from './hooks/useTelegram';
+import { useBookmarks } from './hooks/useBookmarks';
 import { AnimatePresence, motion } from 'framer-motion';
+import { GameView } from './components/GameView';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'tools' | 'profile'>('dashboard');
-  const [activeTool, setActiveTool] = useState<'tracker' | 'spy' | null>(null);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'tools' | 'profile' | 'game'>('dashboard');
+  const [activeTool, setActiveTool] = useState<'tracker' | 'spy' | 'comments' | 'trends' | 'super' | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -26,6 +31,7 @@ function App() {
 
   // Use Telegram hooks
   const { user, tg } = useTelegram();
+  const { bookmarkedItemIds } = useBookmarks();
 
   const loadData = async (newCategories?: Category[], newItems?: Item[]) => {
     if (newCategories && newItems) {
@@ -96,7 +102,12 @@ function App() {
   // For production, fallback to false.
   const isAdmin = user?.id === ADMIN_ID || !user;
 
-  const categoryItems = selectedCategory ? items.filter(i => i.categoryId === selectedCategory.id) : [];
+  // Compute items to show based on selected category OR the "bookmarks" pseudo-category
+  const categoryItems = selectedCategory
+    ? selectedCategory.id === 'bookmarks'
+      ? items.filter(i => bookmarkedItemIds.includes(i.id))
+      : items.filter(i => i.categoryId === selectedCategory.id)
+    : [];
 
   if (isCheckingSub || isDataLoading) {
     return (
@@ -139,6 +150,7 @@ function App() {
               key="dashboard"
               categories={categories}
               isPrivateSubscribed={isAdmin || import.meta.env.DEV || isPrivateSubscribed}
+              hasBookmarks={bookmarkedItemIds.length > 0}
               onSelectCategory={(cat) => {
                 if (cat.isPrivate && !isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
                   showVIPPopup();
@@ -169,6 +181,27 @@ function App() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
               </button>
               <YoutubeSpy key="spy" />
+            </div>
+          ) : activeTool === 'comments' ? (
+            <div className="relative">
+              <button onClick={() => setActiveTool(null)} className="absolute top-6 left-4 z-50 p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white backdrop-blur-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <YoutubeComments key="comments" globalApiKey={import.meta.env.VITE_YOUTUBE_API_KEY || ''} />
+            </div>
+          ) : activeTool === 'trends' ? (
+            <div className="relative">
+              <button onClick={() => setActiveTool(null)} className="absolute top-6 left-4 z-50 p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white backdrop-blur-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <YoutubeTrends key="trends" globalApiKey={import.meta.env.VITE_YOUTUBE_API_KEY || ''} />
+            </div>
+          ) : activeTool === 'super' ? (
+            <div className="relative">
+              <button onClick={() => setActiveTool(null)} className="absolute top-6 left-4 z-50 p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white backdrop-blur-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <YoutubeSuperSearch key="super" globalApiKey={import.meta.env.VITE_YOUTUBE_API_KEY || ''} />
             </div>
           ) : (
             <motion.div key="tools-menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-6 mb-24 min-h-screen">
@@ -221,9 +254,93 @@ function App() {
                     </div>
                   </div>
                 </div>
+
+                <div
+                  onClick={() => {
+                    if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                      showVIPPopup();
+                      return;
+                    }
+                    setActiveTool('comments');
+                  }}
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-fuchsia-500/30"
+                >
+                  {/* VIP Badge */}
+                  <div className="absolute top-0 right-0 bg-fuchsia-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-fuchsia-500/30 text-[10px] font-black tracking-wider uppercase text-fuchsia-400 flex items-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
+                    VIP
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="w-12 h-12 rounded-xl bg-fuchsia-500/20 text-fuchsia-400 flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-fuchsia-50 mb-1">Радар Ідей</h3>
+                      <p className="text-sm text-slate-400">Парсинг найпопулярніших коментарів (SEO).</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => {
+                    if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                      showVIPPopup();
+                      return;
+                    }
+                    setActiveTool('trends');
+                  }}
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-orange-500/30"
+                >
+                  {/* VIP Badge */}
+                  <div className="absolute top-0 right-0 bg-orange-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-orange-500/30 text-[10px] font-black tracking-wider uppercase text-orange-400 flex items-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
+                    VIP
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-orange-50 mb-1">Сканер Трендів</h3>
+                      <p className="text-sm text-slate-400">Що зараз на хайпі у світі та Україні.</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div
+                  onClick={() => {
+                    if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                      showVIPPopup();
+                      return;
+                    }
+                    setActiveTool('super');
+                  }}
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-cyan-500/30"
+                >
+                  {/* VIP Badge */}
+                  <div className="absolute top-0 right-0 bg-cyan-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-cyan-500/30 text-[10px] font-black tracking-wider uppercase text-cyan-400 flex items-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
+                    VIP
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41l-7.59-7.59a2.41 2.41 0 0 0-3.41 0Z" /><path d="m5 12 7-7 7 7" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-cyan-50 mb-1">Пошук Діамантів</h3>
+                      <p className="text-sm text-slate-400">Фільтрація відео за кількістю підписників.</p>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </motion.div>
           )
+        ) : activeTab === 'game' ? (
+          <GameView key="game" />
         ) : (
           <Profile
             key="profile"

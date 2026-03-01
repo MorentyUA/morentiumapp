@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import { useProgress } from '../hooks/useProgress';
 import { useStreak } from '../hooks/useStreak';
-import { ShieldCheck, User as UserIcon, Award, Star, BookOpen, Target, Flame } from 'lucide-react';
+import { ShieldCheck, User as UserIcon, Award, Star, BookOpen, Target, Flame, Play } from 'lucide-react';
+import { useGame } from '../hooks/useGame';
 import { motion } from 'framer-motion';
 import type { Item } from '../types';
 
@@ -17,6 +18,15 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
     const { user, tg } = useTelegram();
     const { completedItemIds } = useProgress();
     const { streak } = useStreak();
+    const { score, currentLevel } = useGame();
+
+    // Event listener for real-time game updates while Profile is open
+    const [, forceRender] = useState({});
+    useEffect(() => {
+        const handleGameUpdate = () => forceRender({});
+        window.addEventListener('game_state_updated', handleGameUpdate);
+        return () => window.removeEventListener('game_state_updated', handleGameUpdate);
+    }, []);
 
     // Progress Bar Math
     const totalItems = items.length;
@@ -152,6 +162,30 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                             🎉 Вітаємо! Ви вивчили весь доступний контент!
                         </motion.div>
                     )}
+                </div>
+            </div>
+
+            {/* Tap-to-Earn Game Stats */}
+            <div className="glass-card p-6 border border-purple-500/20 bg-purple-500/5 relative overflow-hidden group">
+                {/* Visual Flair */}
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
+
+                <div className="flex items-center justify-between relative z-10">
+                    <div className="flex items-center space-x-4">
+                        <div className={`p-3 rounded-2xl shadow-inner bg-opacity-20 ${currentLevel.icon.replace('text-', 'bg-')}`}>
+                            <Play className={`w-8 h-8 fill-current drop-shadow-md ${currentLevel.icon}`} />
+                        </div>
+                        <div>
+                            <p className="text-xs text-purple-400 font-bold uppercase tracking-widest mb-1">Клікер Ранг</p>
+                            <h3 className={`font-black text-xl ${currentLevel.icon} drop-shadow-md`}>
+                                {currentLevel.name}
+                            </h3>
+                        </div>
+                    </div>
+                    <div className="text-right">
+                        <p className="text-sm text-slate-400 font-medium tracking-wide mb-1">Кліки</p>
+                        <p className="text-2xl font-black text-white">{score.toLocaleString('uk-UA')}</p>
+                    </div>
                 </div>
             </div>
 

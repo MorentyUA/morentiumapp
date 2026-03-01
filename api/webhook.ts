@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { put, list } from '@vercel/blob';
+import { put, list, del } from '@vercel/blob';
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const STORE_FILE = 'chat_ids.json';
@@ -46,15 +46,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         // 1. Load existing chat IDs from Vercel Blob
         let chatIds: number[] = [];
+        let storeBlobs: any[] = [];
 
         try {
             // Because Vercel Blob URLs are hashed, we use `list` to find our specific file.
-            const { blobs } = await list({ prefix: STORE_FILE });
-            const fileBlob = blobs.find(b => b.pathname === STORE_FILE);
+            const { blobs } = await list({ token: process.env.morespace_READ_WRITE_TOKEN });
+            storeBlobs = blobs.filter(b => b.pathname.includes('chat_ids'));
+            storeBlobs.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
+            const fileBlob = storeBlobs[0];
 
             if (fileBlob) {
-                const response = await fetch(fileBlob.downloadUrl, {
-                    headers: { 'Authorization': `Bearer ${process.env.BLOB_READ_WRITE_TOKEN}` }
+                const response = await fetch(`${fileBlob.url}?t=${Date.now()}`, {
+                    cache: 'no-store'
                 });
                 if (response.ok) {
                     chatIds = await response.json();
@@ -69,13 +72,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             chatIds.push(chatId);
 
             // Upload the patched array back to Vercel Blob
-            // addRandomSuffix: false ensures we overwrite the EXACT same file every time
-            await put(STORE_FILE, JSON.stringify(chatIds), {
-                access: 'private',
-                addRandomSuffix: false,
-                allowOverwrite: true,
-                contentType: 'application/json'
+            // addRandomSuffix: true generates a fresh CDN URL to bypass edge caching
+            const { url, pathname } = await put(STORE_FILE, JSON.stringify(chatIds), {
+                access: 'public',
+                addRandomSuffix: true,
+                contentType: 'application/json',
+                token: process.env.morespace_READ_WRITE_TOKEN
             });
+
+            // Garbage Collection
+            const oldBlobUrls = storeBlobs.filter((b: any) => b.pathname !== pathname).map((b: any) => b.url);
+            if (oldBlobUrls.length > 0) {
+                await del(oldBlobUrls, { token: process.env.morespace_READ_WRITE_TOKEN }).catch(e => console.error("GC Error", e));
+            }
             console.log(`[Webhook] Added new user chatId: ${chatId}`);
         }
 

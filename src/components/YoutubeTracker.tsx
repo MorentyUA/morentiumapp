@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, Users, Eye, Video, Settings, Key } from 'lucide-react';
+import { Search, Loader2, Users, Eye, Video, Settings, Key, Save, X } from 'lucide-react';
 import { CalendarView } from './CalendarView';
 import { type YoutubeChannel, type YoutubeVideo } from '../types';
 
 export const YoutubeTracker: React.FC = () => {
     const [query, setQuery] = useState('');
     const [apiKey, setApiKey] = useState(() => localStorage.getItem('youtube_api_key') || '');
-    const [showSettings, setShowSettings] = useState(false);
+    const [isApiModalOpen, setIsApiModalOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [channel, setChannel] = useState<YoutubeChannel | null>(null);
@@ -48,10 +48,13 @@ export const YoutubeTracker: React.FC = () => {
         return n.toString();
     };
 
-    const handleSaveKey = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const val = e.target.value;
-        setApiKey(val);
-        localStorage.setItem('youtube_api_key', val);
+    const handleSaveKey = () => {
+        if (apiKey.trim()) {
+            localStorage.setItem('youtube_api_key', apiKey.trim());
+        } else {
+            localStorage.removeItem('youtube_api_key');
+        }
+        setIsApiModalOpen(false);
     };
 
     return (
@@ -59,80 +62,43 @@ export const YoutubeTracker: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="p-4 sm:p-6 mb-24 min-h-screen"
+            className="w-full max-w-2xl mx-auto space-y-6 pb-24 relative pt-4 sm:pt-6 px-4"
         >
-            <div className="mb-8 pt-4 flex flex-col items-center justify-center relative">
-                <div className="text-center w-full px-8">
-                    <h1 className="text-3xl sm:text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-rose-600 mb-2 drop-shadow-md tracking-tight">
-                        YouTube Tracker
-                    </h1>
-                    <p className="text-slate-400 text-sm sm:text-base">Відстежуйте графік публікацій будь-якого YouTube каналу.</p>
-                </div>
-                <button
-                    onClick={() => setShowSettings(!showSettings)}
-                    className="absolute top-2 right-0 p-3 bg-white/5 hover:bg-white/15 rounded-xl transition-colors border border-white/10 text-slate-400 hover:text-white"
-                >
-                    <Settings className="w-6 h-6" />
-                </button>
-            </div>
+            <div className="bg-slate-800/80 backdrop-blur-md border border-white/10 p-6 rounded-3xl shadow-xl">
 
-            <AnimatePresence>
-                {showSettings && (
-                    <motion.div
-                        initial={{ opacity: 0, height: 0, marginBottom: 0 }}
-                        animate={{ opacity: 1, height: 'auto', marginBottom: 32 }}
-                        exit={{ opacity: 0, height: 0, marginBottom: 0 }}
-                        className="overflow-hidden"
+                <div className="relative flex items-center justify-center mb-8">
+                    <div className="text-center">
+                        <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-rose-600 mb-2 drop-shadow-md tracking-tight flex items-center justify-center">
+                            YouTube Tracker
+                        </h1>
+                        <p className="text-sm text-slate-400 mt-1">Відстежуйте графік публікацій відео</p>
+                    </div>
+                    <button
+                        onClick={() => setIsApiModalOpen(true)}
+                        className="absolute right-0 p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
                     >
-                        <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl relative">
-                            <label className="text-xs font-bold text-emerald-400 uppercase tracking-wider mb-2 block">
-                                Власний YouTube API Key (Опціонально)
-                            </label>
-                            <div className="relative">
-                                <Key className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500/50" />
-                                <input
-                                    type="password"
-                                    placeholder="AIzaSy..."
-                                    value={apiKey}
-                                    onChange={handleSaveKey}
-                                    className="w-full bg-black/40 border border-emerald-500/20 rounded-xl py-3 pl-10 pr-4 text-emerald-100 placeholder-emerald-800/50 focus:outline-none focus:border-emerald-500 transition-colors text-sm"
-                                />
-                            </div>
-                            <div className="flex justify-between items-center mt-3">
-                                <p className="text-[10px] sm:text-xs text-emerald-400/60 leading-tight flex-1 pr-4">
-                                    Якщо ключ не вказано, використовується ключ адміністратора. Ваш ключ зберігається лише на вашому пристрої.
-                                </p>
-                                <a
-                                    href="https://developers.google.com/youtube/v3/getting-started"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[10px] sm:text-xs font-bold text-white bg-emerald-500 hover:bg-emerald-400 px-3 py-1.5 rounded-lg transition-colors flex-shrink-0 whitespace-nowrap"
-                                >
-                                    Як отримати ключ?
-                                </a>
-                            </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        <Settings className="w-6 h-6" />
+                    </button>
+                </div>
 
-            <form onSubmit={handleSearch} className="mb-8 relative">
-                <input
-                    type="text"
-                    placeholder="Посилання на ВІДЕО або ID Каналу"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                    className="w-full bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-red-500 transition-colors shadow-inner"
-                />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
-                <button
-                    type="submit"
-                    disabled={isLoading || !query.trim()}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:hover:bg-red-600 text-white p-2 rounded-xl transition-colors"
-                >
-                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
-                </button>
-            </form>
+                <form onSubmit={handleSearch} className="relative">
+                    <input
+                        type="text"
+                        placeholder="Посилання: відео або ID каналу"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        className="w-full text-sm sm:text-base bg-black/40 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-red-500 transition-colors shadow-inner"
+                    />
+                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                    <button
+                        type="submit"
+                        disabled={isLoading || !query.trim()}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-red-600 hover:bg-red-500 disabled:opacity-50 disabled:hover:bg-red-600 text-white p-2 rounded-xl transition-colors"
+                    >
+                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Search className="w-5 h-5" />}
+                    </button>
+                </form>
+            </div>
 
             <AnimatePresence mode="wait">
                 {error && (
@@ -187,6 +153,72 @@ export const YoutubeTracker: React.FC = () => {
                         {/* Calendar */}
                         <CalendarView videos={videos} />
 
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
+            {/* API Key Modal */}
+            <AnimatePresence>
+                {isApiModalOpen && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-slate-800 border border-white/10 rounded-3xl p-6 w-full max-w-md shadow-2xl"
+                        >
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="text-xl font-bold text-white flex items-center">
+                                    <Key className="w-5 h-5 mr-2 text-red-500" />
+                                    Налаштування API
+                                </h3>
+                                <button
+                                    onClick={() => setIsApiModalOpen(false)}
+                                    className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white"
+                                >
+                                    <X className="w-5 h-5" />
+                                </button>
+                            </div>
+
+                            <div className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium text-slate-300">Власний Google Cloud API Key</label>
+                                    <input
+                                        type="text"
+                                        value={apiKey}
+                                        onChange={(e) => setApiKey(e.target.value)}
+                                        placeholder="AIzaSy..."
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all font-mono text-sm"
+                                    />
+                                    <div className="flex justify-between items-start mt-2 space-x-2">
+                                        <p className="text-xs text-slate-500 flex-1">
+                                            Залиште пустим, щоб використовувати загальний ключ. Свій ключ обходить ліміти.
+                                        </p>
+                                        <a
+                                            href="https://developers.google.com/youtube/v3/getting-started"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="text-[10px] sm:text-xs font-bold text-white bg-red-600/20 hover:bg-red-600/40 border border-red-500/30 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                                        >
+                                            Як отримати ключ?
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={handleSaveKey}
+                                    className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl transition-colors font-medium mt-4"
+                                >
+                                    <Save className="w-4 h-4" />
+                                    <span>Зберегти налаштування</span>
+                                </button>
+                            </div>
+                        </motion.div>
                     </motion.div>
                 )}
             </AnimatePresence>

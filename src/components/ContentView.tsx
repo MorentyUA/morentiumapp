@@ -4,6 +4,8 @@ import { type Category, type Item } from '../types';
 import { ItemCard } from './ItemCard';
 import { useTelegram } from '../hooks/useTelegram';
 import { useProgress } from '../hooks/useProgress';
+import { useBookmarks } from '../hooks/useBookmarks';
+import { Trash2 } from 'lucide-react';
 
 interface ContentViewProps {
     category: Category;
@@ -15,6 +17,7 @@ export const ContentView: React.FC<ContentViewProps> = ({ category, items, onBac
     const { BackButton, MainButton, HapticFeedback, tg } = useTelegram();
     const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
     const { completedItemIds, toggleItemCompletion } = useProgress();
+    const { clearBookmarks } = useBookmarks();
 
     useEffect(() => {
         try {
@@ -71,7 +74,11 @@ export const ContentView: React.FC<ContentViewProps> = ({ category, items, onBac
             className="min-h-screen pb-24"
         >
             <div className="relative h-56 sm:h-72 w-full">
-                <img src={category.coverImage} alt={category.title} className="w-full h-full object-cover" />
+                {category.coverImage.startsWith('bg-') ? (
+                    <div className={`w-full h-full ${category.coverImage}`} />
+                ) : (
+                    <img src={category.coverImage} alt={category.title} className="w-full h-full object-cover" />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/60 to-transparent" />
 
                 <div className="absolute top-4 left-4 z-10 block sm:hidden">
@@ -87,6 +94,28 @@ export const ContentView: React.FC<ContentViewProps> = ({ category, items, onBac
             </div>
 
             <div className="p-4 sm:p-6 space-y-5">
+                {category.id === 'bookmarks' && items.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex justify-end mb-2"
+                    >
+                        <button
+                            onClick={() => {
+                                try { HapticFeedback.impactOccurred('medium'); } catch { }
+                                if (window.confirm('Ви впевнені, що хочете видалити всі збережені матеріали?')) {
+                                    clearBookmarks();
+                                    onBack(); // Return to dashboard since category is now empty
+                                }
+                            }}
+                            className="flex items-center text-sm font-semibold text-red-400 hover:text-red-300 transition-colors bg-red-500/10 px-4 py-2 rounded-xl border border-red-500/20 shadow-sm"
+                        >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Очистити все
+                        </button>
+                    </motion.div>
+                )}
+
                 {items.length === 0 ? (
                     <div className="text-center p-8 glass-card border border-white/5">
                         <div className="w-16 h-16 mx-auto mb-4 bg-slate-800 rounded-full flex items-center justify-center">

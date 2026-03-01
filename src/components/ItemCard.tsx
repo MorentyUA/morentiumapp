@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ExternalLink, FileText, Play, CheckCircle2, Circle } from 'lucide-react';
+import { ExternalLink, FileText, Play, CheckCircle2, Circle, Bookmark } from 'lucide-react';
 import { type Item } from '../types';
+import { useBookmarks } from '../hooks/useBookmarks';
 
 interface ItemCardProps {
     item: Item;
@@ -12,6 +13,8 @@ interface ItemCardProps {
 export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isCompleted, onToggleCompletion }) => {
     const tg = (window as any).Telegram?.WebApp;
     const [isExpanded, setIsExpanded] = useState(false);
+    const { isBookmarked, toggleBookmark } = useBookmarks();
+    const isSaved = isBookmarked(item.id);
 
     // Base styles + Selection Rings + Completed Dimming
     const baseStyle = isSelected ? "ring-2 ring-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "border border-white/5";
@@ -20,21 +23,23 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isComplete
     const selectedStyle = `${baseStyle} ${completedStyle}`;
 
     const renderToggle = () => (
-        <button
-            onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                if (onToggleCompletion) onToggleCompletion(e);
-            }}
-            className="ml-auto p-2 -mr-2 flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
-        >
-            {isCompleted && (
-                <span className="text-sm font-bold text-cyan-400 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]">
-                    Пройдено
-                </span>
-            )}
-            {isCompleted ? <CheckCircle2 className="w-8 h-8 text-cyan-400 fill-cyan-400/20 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" /> : <Circle className="w-8 h-8 opacity-50 stroke-2" />}
-        </button>
+        <div className="ml-auto flex items-center gap-1 -mr-2 shrink-0">
+            <button
+                onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (onToggleCompletion) onToggleCompletion(e);
+                }}
+                className="p-2 flex items-center gap-2 text-slate-400 hover:text-white transition-colors"
+            >
+                {isCompleted && (
+                    <span className="text-sm font-bold text-cyan-400 tracking-wide uppercase drop-shadow-[0_0_5px_rgba(6,182,212,0.8)]">
+                        Пройдено
+                    </span>
+                )}
+                {isCompleted ? <CheckCircle2 className="w-8 h-8 text-cyan-400 fill-cyan-400/20 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" /> : <Circle className="w-8 h-8 opacity-50 stroke-2" />}
+            </button>
+        </div>
     );
 
     const renderContent = () => {
@@ -122,12 +127,25 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isComplete
         }
 
         return (
-            <div className={`glass-card p-5 space-y-4 transition-all ${selectedStyle}`}>
-                <div className="flex items-center space-x-3 text-red-500 mb-2">
-                    <div className="p-2 bg-red-500/10 rounded-xl">
+            <div className={`glass-card p-5 space-y-4 transition-all relative ${selectedStyle}`}>
+                <div className="absolute bottom-4 right-4 z-10">
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleBookmark(item.id);
+                        }}
+                        className="p-2 flex items-center justify-center transition-all hover:scale-110 active:scale-95 bg-black/40 backdrop-blur-md rounded-full shadow-lg"
+                    >
+                        <Bookmark className={`w-5 h-5 transition-all ${isSaved ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]' : 'text-slate-400 hover:text-yellow-400 stroke-[1.5]'}`} />
+                    </button>
+                </div>
+
+                <div className="flex items-start gap-3 mb-2">
+                    <div className="p-2 bg-red-500/10 rounded-xl text-red-500 shrink-0 mt-0.5">
                         <Play className="w-5 h-5 fill-current" />
                     </div>
-                    <h4 className="font-bold text-xl text-white mr-2">{item.title}</h4>
+                    <h4 className="font-bold text-xl text-white flex-1 min-w-0 pr-2">{item.title}</h4>
                     {renderToggle()}
                 </div>
                 <div className={`${isShort ? 'aspect-[9/16] max-h-[70vh] mx-auto w-auto' : 'aspect-video w-full'} rounded-xl overflow-hidden bg-[#0f172a] border border-white/10 shadow-inner flex justify-center`}>
@@ -153,13 +171,26 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isComplete
 
     if (item.type === 'link') {
         return (
-            <div className={`glass-card p-5 block border-l-4 border-l-blue-500 transition-all ${selectedStyle}`}>
+            <div className={`glass-card p-5 block border-l-4 border-l-blue-500 transition-all relative ${selectedStyle}`}>
+                <div className="absolute bottom-4 right-4 z-10">
+                    <button
+                        onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            toggleBookmark(item.id);
+                        }}
+                        className="p-2 flex items-center justify-center transition-all hover:scale-110 active:scale-95 bg-black/40 backdrop-blur-md rounded-full shadow-lg"
+                    >
+                        <Bookmark className={`w-5 h-5 transition-all ${isSaved ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]' : 'text-slate-400 hover:text-yellow-400 stroke-[1.5]'}`} />
+                    </button>
+                </div>
+
                 <div className="flex flex-col">
-                    <div className="flex items-center space-x-3 text-blue-400 mb-2">
-                        <div className="p-2 bg-blue-500/10 rounded-xl">
+                    <div className="flex items-start gap-3 mb-2">
+                        <div className="p-2 bg-blue-500/10 rounded-xl text-blue-400 shrink-0 mt-0.5">
                             <ExternalLink className="w-5 h-5 fill-current" />
                         </div>
-                        <h4 className="font-bold text-xl text-white mr-2">
+                        <h4 className="font-bold text-xl text-white flex-1 min-w-0 pr-2">
                             {item.title}
                         </h4>
                         {renderToggle()}
@@ -189,12 +220,25 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isComplete
 
     // text type
     return (
-        <div className={`glass-card p-6 transition-all border-t border-t-emerald-500/30 ${selectedStyle}`}>
-            <div className="flex items-center space-x-3 mb-4 text-emerald-400">
-                <div className="p-2 bg-emerald-500/10 rounded-xl">
+        <div className={`glass-card p-6 transition-all border-t border-t-emerald-500/30 relative ${selectedStyle}`}>
+            <div className="absolute bottom-4 right-4 z-10">
+                <button
+                    onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        toggleBookmark(item.id);
+                    }}
+                    className="p-2 flex items-center justify-center transition-all hover:scale-110 active:scale-95 bg-black/40 backdrop-blur-md rounded-full shadow-lg"
+                >
+                    <Bookmark className={`w-5 h-5 transition-all ${isSaved ? 'text-yellow-400 fill-yellow-400 drop-shadow-[0_0_8px_rgba(250,204,21,0.6)]' : 'text-slate-400 hover:text-yellow-400 stroke-[1.5]'}`} />
+                </button>
+            </div>
+
+            <div className="flex items-start gap-3 mb-4">
+                <div className="p-2 bg-emerald-500/10 rounded-xl text-emerald-400 shrink-0 mt-0.5">
                     <FileText className="w-5 h-5" />
                 </div>
-                <h4 className="font-bold text-xl text-white mr-2">{item.title}</h4>
+                <h4 className="font-bold text-xl text-white flex-1 min-w-0 pr-2">{item.title}</h4>
                 {renderToggle()}
             </div>
             {renderContent()}
