@@ -294,7 +294,7 @@ export const YoutubeSpy: React.FC = () => {
                                     />
                                     <div className="flex justify-between items-start mt-2 space-x-2">
                                         <p className="text-xs text-slate-500 flex-1">
-                                            Залиште пустим, щоб використовувати загальний ключ. Свій ключ обходить ліміти.
+                                            Залиште пустим, щоб використовувати загальний ключ з адмін-панелі. Власний ключ дозволяє обходити ліміти системи.
                                         </p>
                                         <a
                                             href="https://developers.google.com/youtube/v3/getting-started"

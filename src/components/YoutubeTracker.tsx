@@ -174,7 +174,7 @@ export const YoutubeTracker: React.FC = () => {
                         >
                             <div className="flex justify-between items-center mb-6">
                                 <h3 className="text-xl font-bold text-white flex items-center">
-                                    <Key className="w-5 h-5 mr-2 text-red-500" />
+                                    <Key className="w-5 h-5 mr-2 text-indigo-400" />
                                     Налаштування API
                                 </h3>
                                 <button
@@ -193,17 +193,17 @@ export const YoutubeTracker: React.FC = () => {
                                         value={apiKey}
                                         onChange={(e) => setApiKey(e.target.value)}
                                         placeholder="AIzaSy..."
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all font-mono text-sm"
+                                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono text-sm"
                                     />
                                     <div className="flex justify-between items-start mt-2 space-x-2">
                                         <p className="text-xs text-slate-500 flex-1">
-                                            Залиште пустим, щоб використовувати загальний ключ. Свій ключ обходить ліміти.
+                                            Залиште пустим, щоб використовувати загальний ключ з адмін-панелі. Власний ключ дозволяє обходити ліміти системи.
                                         </p>
                                         <a
                                             href="https://developers.google.com/youtube/v3/getting-started"
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-[10px] sm:text-xs font-bold text-white bg-red-600/20 hover:bg-red-600/40 border border-red-500/30 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                                            className="text-[10px] sm:text-xs font-bold text-white bg-indigo-500/20 hover:bg-indigo-500/40 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
                                         >
                                             Як отримати ключ?
                                         </a>
@@ -212,7 +212,7 @@ export const YoutubeTracker: React.FC = () => {
 
                                 <button
                                     onClick={handleSaveKey}
-                                    className="w-full flex items-center justify-center space-x-2 bg-red-600 hover:bg-red-500 text-white py-3 rounded-xl transition-colors font-medium mt-4"
+                                    className="w-full flex items-center justify-center space-x-2 bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-xl transition-colors font-medium mt-4"
                                 >
                                     <Save className="w-4 h-4" />
                                     <span>Зберегти налаштування</span>

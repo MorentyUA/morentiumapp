@@ -14,6 +14,7 @@ import { getCategories, getItems } from './lib/store';
 import { type Category, type Item, ADMIN_ID } from './types';
 import { useTelegram } from './hooks/useTelegram';
 import { useBookmarks } from './hooks/useBookmarks';
+import { useProgress } from './hooks/useProgress';
 import { AnimatePresence, motion } from 'framer-motion';
 import { GameView } from './components/GameView';
 
@@ -30,8 +31,10 @@ function App() {
   const [subError, setSubError] = useState<string>('');
 
   // Use Telegram hooks
+  // Use Telegram & LocalStorage hooks
   const { user, tg } = useTelegram();
   const { bookmarkedItemIds } = useBookmarks();
+  const { completedItemIds } = useProgress();
 
   const loadData = async (newCategories?: Category[], newItems?: Item[]) => {
     if (newCategories && newItems) {
@@ -103,11 +106,17 @@ function App() {
   const isAdmin = user?.id === ADMIN_ID || !user;
 
   // Compute items to show based on selected category OR the "bookmarks" pseudo-category
+  // Compute items to show based on selected category OR pseudo-categories
   const categoryItems = selectedCategory
     ? selectedCategory.id === 'bookmarks'
       ? items.filter(i => bookmarkedItemIds.includes(i.id))
-      : items.filter(i => i.categoryId === selectedCategory.id)
+      : selectedCategory.id === 'uncompleted'
+        ? items.filter(i => !completedItemIds.includes(i.id))
+        : items.filter(i => i.categoryId === selectedCategory.id)
     : [];
+
+  const uncompletedCount = items.filter(i => !completedItemIds.includes(i.id)).length;
+  const hasUncompleted = uncompletedCount > 0;
 
   if (isCheckingSub || isDataLoading) {
     return (
@@ -151,6 +160,8 @@ function App() {
               categories={categories}
               isPrivateSubscribed={isAdmin || import.meta.env.DEV || isPrivateSubscribed}
               hasBookmarks={bookmarkedItemIds.length > 0}
+              hasUncompleted={hasUncompleted}
+              uncompletedCount={uncompletedCount}
               onSelectCategory={(cat) => {
                 if (cat.isPrivate && !isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
                   showVIPPopup();
@@ -214,10 +225,22 @@ function App() {
 
               <div className="grid grid-cols-1 gap-4">
                 <div
-                  onClick={() => setActiveTool('tracker')}
-                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors"
+                  onClick={() => {
+                    if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                      showVIPPopup();
+                      return;
+                    }
+                    setActiveTool('tracker');
+                  }}
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-amber-500/30"
                 >
-                  <div className="flex items-center gap-4">
+                  {/* VIP Badge */}
+                  <div className="absolute top-0 right-0 bg-amber-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-amber-500/30 text-[10px] font-black tracking-wider uppercase text-amber-400 flex items-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
+                    VIP
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-2">
                     <div className="w-12 h-12 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center flex-shrink-0">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5" /><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" /><line x1="17.5" x2="17.51" y1="6.5" y2="6.5" /></svg>
                     </div>

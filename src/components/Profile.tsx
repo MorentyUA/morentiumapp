@@ -34,6 +34,16 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
     // Cap at 100% just in case of localStorage anomalies
     const progressPercentage = totalItems > 0 ? Math.min(100, Math.round((completedCount / totalItems) * 100)) : 0;
 
+    const getLearningStatus = (pct: number): { rank: string, color: string } => {
+        if (pct === 100) return { rank: "👑 Гуру YouTube", color: "text-yellow-400" };
+        if (pct >= 81) return { rank: "🔥 Експерт", color: "text-orange-400" };
+        if (pct >= 51) return { rank: "🎓 Знавець", color: "text-purple-400" };
+        if (pct >= 21) return { rank: "📖 Студент", color: "text-blue-400" };
+        return { rank: "🚀 Новачок", color: "text-slate-400" };
+    };
+
+    const status = getLearningStatus(progressPercentage);
+
     const renderBadge = () => {
         if (isAdmin) {
             return (
@@ -81,7 +91,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                             </div>
                         )}
                     </div>
-                    {/* Floating Badge */}
+                    {/* Floating VIP Badge (Bottom Right) */}
                     <div className="absolute -bottom-2 -right-2">
                         {isPrivateSubscribed ? (
                             <div className="bg-yellow-400 p-1.5 rounded-full shadow-lg border-2 border-[#0f172a]">
@@ -93,6 +103,13 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                             </div>
                         )}
                     </div>
+                    {/* Floating Streak Badge (Top Right) */}
+                    {streak > 0 && (
+                        <div className="absolute -top-2 -right-2 bg-orange-500 text-white rounded-full shadow-lg border-2 border-[#0f172a] px-2 py-0.5 flex items-center gap-1 z-20">
+                            <Flame className="w-3 h-3 fill-orange-200" />
+                            <span className="text-xs font-black">{streak}</span>
+                        </div>
+                    )}
                 </div>
 
                 <h2 className="text-2xl font-bold text-white mb-1">
@@ -118,19 +135,12 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                             </div>
                             <div>
                                 <h3 className="font-bold text-xl text-white">Академія Креатора</h3>
-                                <p className="text-sm text-emerald-400 font-medium tracking-wide">Ваш прогрес навчання</p>
+                                <p className="text-sm text-slate-400 font-medium tracking-wide flex items-center gap-1.5 mt-0.5">
+                                    Статус: <span className={`font-bold ${status.color}`}>{status.rank}</span>
+                                </p>
                             </div>
                         </div>
                         <div className="flex items-center gap-4 text-right">
-                            {streak > 0 && (
-                                <div className="flex flex-col items-center justify-center bg-orange-500/10 border border-orange-500/20 px-2 py-1 rounded-lg">
-                                    <div className="flex items-center gap-1">
-                                        <Flame className="w-4 h-4 text-orange-500 fill-orange-500/50 animate-pulse-slow" />
-                                        <span className="font-bold text-orange-400 text-sm">{streak}</span>
-                                    </div>
-                                    <span className="text-[8px] text-orange-500/70 font-bold uppercase tracking-widest mt-0.5">Днів підряд</span>
-                                </div>
-                            )}
                             <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
                                 {progressPercentage}%
                             </p>
@@ -155,11 +165,15 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
 
                     {progressPercentage === 100 && totalItems > 0 && (
                         <motion.div
-                            initial={{ scale: 0.9, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            className="mt-4 p-3 bg-emerald-500/20 border border-emerald-500/30 rounded-xl text-center text-sm text-emerald-300 font-bold"
+                            initial={{ scale: 0.9, opacity: 0, y: 10 }}
+                            animate={{ scale: 1, opacity: 1, y: 0 }}
+                            className="mt-5 p-4 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-xl text-center text-white shadow-lg shadow-emerald-500/20 border border-emerald-400/50"
                         >
-                            🎉 Вітаємо! Ви вивчили весь доступний контент!
+                            <div className="flex flex-col items-center gap-1">
+                                <span className="text-2xl mb-1">👑</span>
+                                <h4 className="font-black tracking-wider uppercase">Майстерність Досягнуто</h4>
+                                <p className="text-xs text-emerald-100 font-medium mt-1">Ви вивчили абсолютно всі матеріали!</p>
+                            </div>
                         </motion.div>
                     )}
                 </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Flame, Bookmark } from 'lucide-react';
+import { Flame, Bookmark, BookOpen } from 'lucide-react';
 import { type Category } from '../types';
 import { CategoryCard } from './CategoryCard';
 import { useStreak } from '../hooks/useStreak';
@@ -9,6 +9,8 @@ interface DashboardProps {
     categories: Category[];
     isPrivateSubscribed: boolean;
     hasBookmarks: boolean;
+    hasUncompleted?: boolean;
+    uncompletedCount?: number;
     onSelectCategory: (category: Category) => void;
 }
 
@@ -25,7 +27,14 @@ const item = {
     show: { y: 0, opacity: 1 }
 };
 
-export const Dashboard: React.FC<DashboardProps> = ({ categories, isPrivateSubscribed, hasBookmarks, onSelectCategory }) => {
+export const Dashboard: React.FC<DashboardProps> = ({
+    categories,
+    isPrivateSubscribed,
+    hasBookmarks,
+    hasUncompleted,
+    uncompletedCount,
+    onSelectCategory
+}) => {
     const { streak } = useStreak();
 
     return (
@@ -64,7 +73,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ categories, isPrivateSubsc
                                 id: 'bookmarks',
                                 title: 'Збережене',
                                 description: 'Ваші улюблені статті та відео, збережені для швидкого доступу.',
-                                coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop', // Abstract red splash
+                                coverImage: 'https://images.unsplash.com/photo-1541701494587-cb58502866ab?q=80&w=2564&auto=format&fit=crop', // Deep vibrant red abstract paint
                                 isPrivate: false
                             })}
                             className="glass-card cursor-pointer overflow-hidden group relative hover:border-red-500/50 transition-all shadow-[0_4px_20px_rgba(239,68,68,0.15)] border-red-500/20"
@@ -88,6 +97,42 @@ export const Dashboard: React.FC<DashboardProps> = ({ categories, isPrivateSubsc
                             <div className="p-5 relative z-20 -mt-10 bg-gradient-to-b from-transparent to-[#0f172a]">
                                 <h3 className="text-xl font-bold text-red-400 mb-2 drop-shadow-md">🔖 Ваші Збереження</h3>
                                 <p className="text-slate-300 text-sm line-clamp-2">Швидкий доступ до відкладеного контенту без пошуку по категоріях.</p>
+                            </div>
+                        </div>
+                    </motion.div>
+                )}
+
+                {hasUncompleted && (
+                    <motion.div variants={item}>
+                        <div
+                            onClick={() => onSelectCategory({
+                                id: 'uncompleted',
+                                title: 'Ще не вивчено',
+                                description: 'Всі матеріали, які ви ще не відмітили як пройдені, зібрані тут у зручному списку.',
+                                coverImage: 'https://images.unsplash.com/photo-1604076913837-52ab5629fba9?q=80&w=2564&auto=format&fit=crop', // Dark striking red texture
+                                isPrivate: false
+                            })}
+                            className="glass-card cursor-pointer overflow-hidden group relative hover:border-emerald-500/50 transition-all shadow-[0_4px_20px_rgba(16,185,129,0.15)] border-emerald-500/20"
+                        >
+                            <div className="absolute top-0 right-0 p-4 z-20">
+                                <div className="bg-emerald-500/20 backdrop-blur-md px-3 py-1 rounded-full border border-emerald-500/30 flex items-center shadow-lg">
+                                    <span className="text-emerald-400 text-[10px] sm:text-xs font-bold uppercase tracking-wider flex items-center">
+                                        <BookOpen className="w-4 h-4 mr-1 stroke-[1.5]" />
+                                        Залишилось: {uncompletedCount}
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="h-40 relative group-hover:scale-105 transition-transform duration-500 z-0">
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent z-10" />
+                                <div className="w-full h-full bg-emerald-900/40 flex items-center justify-center">
+                                    <BookOpen className="w-16 h-16 text-emerald-500 opacity-20" />
+                                </div>
+                            </div>
+
+                            <div className="p-5 relative z-20 -mt-10 bg-gradient-to-b from-transparent to-[#0f172a]">
+                                <h3 className="text-xl font-bold text-emerald-400 mb-2 drop-shadow-md">📘 Невивчене</h3>
+                                <p className="text-slate-300 text-sm line-clamp-2">Новий контент та інструкції, які ви ще не пройшли.</p>
                             </div>
                         </div>
                     </motion.div>
