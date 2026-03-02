@@ -10,6 +10,9 @@ import { YoutubeSpy } from './components/YoutubeSpy';
 import { YoutubeComments } from './components/YoutubeComments';
 import { YoutubeTrends } from './components/YoutubeTrends';
 import { YoutubeSuperSearch } from './components/YoutubeSuperSearch';
+import { YoutubeTagsGenerator } from './components/YoutubeTagsGenerator';
+import { YoutubeThumbnailSimulator } from './components/YoutubeThumbnailSimulator';
+import { YoutubeChannelAudit } from './components/YoutubeChannelAudit';
 import { getCategories, getItems } from './lib/store';
 import { type Category, type Item, ADMIN_ID } from './types';
 import { useTelegram } from './hooks/useTelegram';
@@ -20,7 +23,7 @@ import { GameView } from './components/GameView';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tools' | 'profile' | 'game'>('dashboard');
-  const [activeTool, setActiveTool] = useState<'tracker' | 'spy' | 'comments' | 'trends' | 'super' | null>(null);
+  const [activeTool, setActiveTool] = useState<'tracker' | 'spy' | 'comments' | 'trends' | 'super' | 'tags' | 'thumbnail' | 'audit' | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -214,6 +217,27 @@ function App() {
               </button>
               <YoutubeSuperSearch key="super" globalApiKey={import.meta.env.VITE_YOUTUBE_API_KEY || ''} />
             </div>
+          ) : activeTool === 'tags' ? (
+            <div className="relative">
+              <button onClick={() => setActiveTool(null)} className="absolute top-6 left-4 z-50 p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white backdrop-blur-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <YoutubeTagsGenerator key="tags" globalApiKey={import.meta.env.VITE_YOUTUBE_API_KEY || ''} />
+            </div>
+          ) : activeTool === 'thumbnail' ? (
+            <div className="relative">
+              <button onClick={() => setActiveTool(null)} className="absolute top-6 left-4 z-50 p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white backdrop-blur-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <YoutubeThumbnailSimulator key="thumbnail" globalApiKey={import.meta.env.VITE_YOUTUBE_API_KEY || ''} />
+            </div>
+          ) : activeTool === 'audit' ? (
+            <div className="relative">
+              <button onClick={() => setActiveTool(null)} className="absolute top-6 left-4 z-50 p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white backdrop-blur-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <YoutubeChannelAudit key="audit" globalApiKey={import.meta.env.VITE_YOUTUBE_API_KEY || ''} />
+            </div>
           ) : (
             <motion.div key="tools-menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-6 mb-24 min-h-screen">
               <div className="mb-8 pt-4">
@@ -232,10 +256,10 @@ function App() {
                     }
                     setActiveTool('tracker');
                   }}
-                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-amber-500/30"
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-red-500/30"
                 >
                   {/* VIP Badge */}
-                  <div className="absolute top-0 right-0 bg-amber-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-amber-500/30 text-[10px] font-black tracking-wider uppercase text-amber-400 flex items-center shadow-lg">
+                  <div className="absolute top-0 right-0 bg-red-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-red-500/30 text-[10px] font-black tracking-wider uppercase text-red-400 flex items-center shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
                     VIP
                   </div>
@@ -251,6 +275,62 @@ function App() {
                   </div>
                 </div>
 
+                {/* VIP Thumbnail Simulator */}
+                <div
+                  onClick={() => {
+                    if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                      showVIPPopup();
+                      return;
+                    }
+                    setActiveTool('thumbnail');
+                  }}
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-teal-500/30"
+                >
+                  {/* VIP Badge */}
+                  <div className="absolute top-0 right-0 bg-teal-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-teal-500/30 text-[10px] font-black tracking-wider uppercase text-teal-400 flex items-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
+                    VIP
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="w-12 h-12 rounded-xl bg-teal-500/20 text-teal-400 flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-teal-50 mb-1">Симулятор Прев'ю</h3>
+                      <p className="text-sm text-slate-400">Перевірка клікабельності вашого прев'ю на фоні конкурентів.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* VIP Channel Audit */}
+                <div
+                  onClick={() => {
+                    if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                      showVIPPopup();
+                      return;
+                    }
+                    setActiveTool('audit');
+                  }}
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-orange-500/30"
+                >
+                  {/* VIP Badge */}
+                  <div className="absolute top-0 right-0 bg-orange-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-orange-500/30 text-[10px] font-black tracking-wider uppercase text-orange-400 flex items-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
+                    VIP
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="w-12 h-12 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-orange-50 mb-1">Аудит Каналу</h3>
+                      <p className="text-sm text-slate-400">Перевірка "здоров'я" каналу та аналіз топових відео.</p>
+                    </div>
+                  </div>
+                </div>
+
                 <div
                   onClick={() => {
                     if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
@@ -259,10 +339,10 @@ function App() {
                     }
                     setActiveTool('spy');
                   }}
-                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-amber-500/30"
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-indigo-500/30"
                 >
                   {/* VIP Badge */}
-                  <div className="absolute top-0 right-0 bg-amber-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-amber-500/30 text-[10px] font-black tracking-wider uppercase text-amber-400 flex items-center shadow-lg">
+                  <div className="absolute top-0 right-0 bg-indigo-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-indigo-500/30 text-[10px] font-black tracking-wider uppercase text-indigo-400 flex items-center shadow-lg">
                     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
                     VIP
                   </div>
@@ -358,6 +438,32 @@ function App() {
                     </div>
                   </div>
                 </div>
+                {/* VIP Tags Generator */}
+                <div
+                  onClick={() => {
+                    if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                      showVIPPopup();
+                      return;
+                    }
+                    setActiveTool('tags');
+                  }}
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-red-500/30"
+                >
+                  <div className="absolute top-0 right-0 bg-red-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-red-500/30 text-[10px] font-black tracking-wider uppercase text-red-400 flex items-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
+                    VIP
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="w-12 h-12 rounded-xl bg-red-500/20 text-red-500 flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" x2="20" y1="9" y2="9" /><line x1="4" x2="20" y1="15" y2="15" /><line x1="10" x2="8" y1="3" y2="21" /><line x1="16" x2="14" y1="3" y2="21" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-red-50 mb-1">YouTube Tags Generator</h3>
+                      <p className="text-sm text-slate-400">Генерація SEO тегів на основі конкурентів.</p>
+                    </div>
+                  </div>
+                </div>
 
               </div>
             </motion.div>
@@ -375,23 +481,27 @@ function App() {
         )}
       </AnimatePresence>
 
-      {!selectedCategory && (
-        <BottomNav
-          activeTab={activeTab}
-          onChange={(tab) => {
-            if (tab !== 'tools') setActiveTool(null);
-            setActiveTab(tab);
-          }}
-        />
-      )}
+      {
+        !selectedCategory && (
+          <BottomNav
+            activeTab={activeTab}
+            onChange={(tab) => {
+              if (tab !== 'tools') setActiveTool(null);
+              setActiveTab(tab);
+            }}
+          />
+        )
+      }
 
-      {(isAdmin || import.meta.env.DEV) && (
-        <AdminPanel
-          categories={categories}
-          items={items}
-          onDataChange={loadData}
-        />
-      )}
+      {
+        (isAdmin || import.meta.env.DEV) && (
+          <AdminPanel
+            categories={categories}
+            items={items}
+            onDataChange={loadData}
+          />
+        )
+      }
     </div >
   );
 }

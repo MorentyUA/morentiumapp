@@ -2,8 +2,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useTelegram } from './useTelegram';
 
 const GAME_STORAGE_KEY = 'morentube_clicker_state';
-export const MAX_ENERGY = 1000;
-const ENERGY_REGEN_RATE = 1; // 1 energy per second
+export const DEFAULT_MAX_ENERGY = 1000;
+export const DEFAULT_REGEN_RATE = 1; // 1 energy per second
+export const DEFAULT_MULTIPLIER = 1;
 
 export interface LevelInfo {
     id: number;
@@ -40,14 +41,28 @@ export const LEVEL_THRESHOLDS = LEVELS;
 export const useGame = () => {
     const { user } = useTelegram();
     const [score, setScore] = useState(0);
-    const [energy, setEnergy] = useState(MAX_ENERGY);
+    const [coins, setCoins] = useState(0);
+    const [energy, setEnergy] = useState(DEFAULT_MAX_ENERGY);
     const [lastUpdate, setLastUpdate] = useState(Date.now());
 
-    // Phase 17 Gamification States
-    const [dailyBoosts, setDailyBoosts] = useState(3);
+    // Upgrades
+    const [maxEnergy, setMaxEnergy] = useState(DEFAULT_MAX_ENERGY);
+    const [energyRegenRate, setEnergyRegenRate] = useState(DEFAULT_REGEN_RATE);
+    const [clickMultiplier, setClickMultiplier] = useState(DEFAULT_MULTIPLIER);
+
+    // Phase 24 Gamification States
+    const [hasClaimedDailyCrate, setHasClaimedDailyCrate] = useState(false);
     const [lastBoostResetDate, setLastBoostResetDate] = useState(() => new Date().toISOString().split('T')[0]);
     const [isSuperMode, setIsSuperMode] = useState(false);
     const [superModeTimeLeft, setSuperModeTimeLeft] = useState(0);
+    const [lastSuperModeTime, setLastSuperModeTime] = useState(0);
+
+    // Phase 25 Retention Gamification
+    const [loginStreak, setLoginStreak] = useState(1);
+    const [offlineEarnings, setOfflineEarnings] = useState<{ score: number, coins: number } | null>(null);
+    const [dailyQuestsProgress, setDailyQuestsProgress] = useState({ clicks: 0, superModes: 0, upgrades: 0 });
+    const [dailyQuestsClaimed, setDailyQuestsClaimed] = useState({ clicks: false, superModes: false, upgrades: false });
+    const [lastQuestResetTime, setLastQuestResetTime] = useState(Date.now());
 
     const lastSyncedScore = useRef(0);
 
@@ -58,26 +73,80 @@ export const useGame = () => {
             if (stored) {
                 const parsed = JSON.parse(stored);
                 setScore(parsed.score || 0);
+                setCoins(parsed.coins || 0);
+
+                // Load Upgrades
+                const savedMaxEnergy = parsed.maxEnergy || DEFAULT_MAX_ENERGY;
+                setMaxEnergy(savedMaxEnergy);
+                const savedRegenRate = parsed.energyRegenRate || DEFAULT_REGEN_RATE;
+                setEnergyRegenRate(savedRegenRate);
+                setClickMultiplier(parsed.clickMultiplier || DEFAULT_MULTIPLIER);
+                setLastSuperModeTime(parsed.lastSuperModeTime || 0);
+
+                setLoginStreak(parsed.loginStreak || 1);
+
+                // Quest Reset Logic (10 minutes = 600,000 ms)
+                const now = Date.now();
+                const savedQuestResetTime = parsed.lastQuestResetTime || now;
+                const timeSinceQuestReset = now - savedQuestResetTime;
+
+                if (timeSinceQuestReset >= 600000) {
+                    setDailyQuestsProgress({ clicks: 0, superModes: 0, upgrades: 0 });
+                    setDailyQuestsClaimed({ clicks: false, superModes: false, upgrades: false });
+                    setLastQuestResetTime(now);
+                } else {
+                    setDailyQuestsProgress(parsed.dailyQuestsProgress || { clicks: 0, superModes: 0, upgrades: 0 });
+                    setDailyQuestsClaimed(parsed.dailyQuestsClaimed || { clicks: false, superModes: false, upgrades: false });
+                    setLastQuestResetTime(savedQuestResetTime);
+                }
 
                 const today = new Date().toISOString().split('T')[0];
                 if (parsed.lastBoostResetDate !== today) {
-                    setDailyBoosts(3);
+                    setHasClaimedDailyCrate(false);
+
+                    // Streak Logic
+                    if (parsed.lastBoostResetDate) {
+                        const lastDate = new Date(parsed.lastBoostResetDate);
+                        const currentDate = new Date(today);
+                        const diffTime = Math.abs(currentDate.getTime() - lastDate.getTime());
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                        if (diffDays === 1) {
+                            setLoginStreak(prev => Math.min(prev + 1, 7)); // Cap streak at 7
+                        } else {
+                            setLoginStreak(1);
+                        }
+                    }
+
                     setLastBoostResetDate(today);
                 } else {
-                    setDailyBoosts(parsed.dailyBoosts ?? 3);
+                    setHasClaimedDailyCrate(parsed.hasClaimedDailyCrate ?? false);
                     setLastBoostResetDate(parsed.lastBoostResetDate);
                 }
 
-                // Calculate offline energy regeneration
-                const now = Date.now();
-                const passedSeconds = Math.floor((now - (parsed.lastUpdate || now)) / 1000);
-                const regeneratedEnergy = passedSeconds * ENERGY_REGEN_RATE;
+                // Calculate offline energy regeneration and MINING
+                const currentTime = Date.now();
+                const passedSeconds = Math.floor((currentTime - (parsed.lastUpdate || currentTime)) / 1000);
+
+                // Offline Mining Logic (Cap at 3 hours = 10800 seconds)
+                const offlineMiningSeconds = Math.min(passedSeconds, 3 * 3600);
+                if (offlineMiningSeconds > 60) { // Only show modal if away for more than 1 minute
+                    // 1 score per second base * clickMultiplier
+                    const offlineScore = offlineMiningSeconds * 1 * (parsed.clickMultiplier || DEFAULT_MULTIPLIER);
+                    const offlineCoins = Math.floor(offlineScore / 100);
+
+                    if (offlineScore > 0) {
+                        setOfflineEarnings({ score: offlineScore, coins: offlineCoins });
+                    }
+                }
+
+                const regeneratedEnergy = passedSeconds * savedRegenRate;
 
                 // Cap at MAX_ENERGY
-                const newEnergy = Math.min((parsed.energy ?? MAX_ENERGY) + regeneratedEnergy, MAX_ENERGY);
+                const newEnergy = Math.min((parsed.energy ?? savedMaxEnergy) + regeneratedEnergy, savedMaxEnergy);
 
                 setEnergy(newEnergy);
-                setLastUpdate(now);
+                setLastUpdate(currentTime);
             }
         } catch (e) {
             console.error("Failed to load game state", e);
@@ -88,24 +157,33 @@ export const useGame = () => {
     useEffect(() => {
         const interval = setInterval(() => {
             setEnergy(prev => {
-                if (prev >= MAX_ENERGY) return prev;
-                return Math.min(prev + ENERGY_REGEN_RATE, MAX_ENERGY);
+                if (prev >= maxEnergy) return prev;
+                return Math.min(prev + energyRegenRate, maxEnergy);
             });
             setLastUpdate(Date.now());
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [maxEnergy, energyRegenRate]);
 
     // Save to LocalStorage whenever critical values change
     useEffect(() => {
         try {
             localStorage.setItem(GAME_STORAGE_KEY, JSON.stringify({
                 score,
+                coins,
                 energy,
+                maxEnergy,
+                energyRegenRate,
+                clickMultiplier,
                 lastUpdate,
-                dailyBoosts,
-                lastBoostResetDate
+                hasClaimedDailyCrate,
+                lastBoostResetDate,
+                lastSuperModeTime,
+                loginStreak,
+                dailyQuestsProgress,
+                dailyQuestsClaimed,
+                lastQuestResetTime
             }));
 
             // Broadcast so Profile can update instantly if open
@@ -113,7 +191,7 @@ export const useGame = () => {
         } catch (e) {
             console.error("Failed to save game state", e);
         }
-    }, [score, energy, lastUpdate, dailyBoosts, lastBoostResetDate]);
+    }, [score, coins, energy, maxEnergy, energyRegenRate, clickMultiplier, lastUpdate, hasClaimedDailyCrate, lastBoostResetDate, lastSuperModeTime, loginStreak, dailyQuestsProgress, dailyQuestsClaimed, lastQuestResetTime]);
 
     // Calculate Current Level
     const currentLevel = LEVELS.slice().reverse().find(lvl => score >= lvl.threshold) || LEVELS[0];
@@ -151,37 +229,62 @@ export const useGame = () => {
     }, [score, forceSync]);
 
     const handleTap = useCallback((baseCount = 1) => {
-        let actualCount = baseCount;
+        let totalBaseCount = baseCount * clickMultiplier;
 
-        setIsSuperMode(currentSuperMode => {
-            if (currentSuperMode) {
-                actualCount = baseCount * 2;
-                return true;
-            }
+        // Add flat +10 multiplier if super mode is active
+        if (isSuperMode) {
+            totalBaseCount = totalBaseCount + 10;
+        }
 
-            // 5% Chance to trigger Super Mode if not active
-            if (Math.random() < 0.05) {
-                actualCount = baseCount * 2;
+        let actualCount = totalBaseCount;
+
+        setDailyQuestsProgress(prev => ({ ...prev, clicks: prev.clicks + baseCount }));
+
+        if (!isSuperMode) {
+            // 1% Chance to trigger Super Mode if not active AND 5-minute cooldown has passed
+            const now = Date.now();
+            const timeSinceLastSuper = now - lastSuperModeTime;
+            const cooldownPassed = timeSinceLastSuper >= (5 * 60 * 1000);
+
+            if (cooldownPassed && Math.random() < 0.05) {
+                // Instantly apply the super mode bonus to this first click
+                actualCount = actualCount + 10;
+                setIsSuperMode(true);
                 setSuperModeTimeLeft(10);
-                return true;
+                setLastSuperModeTime(now);
+                setDailyQuestsProgress(prev => ({ ...prev, superModes: prev.superModes + 1 }));
             }
-            return false;
-        });
+        }
 
         setEnergy(currentEnergy => {
-            if (currentEnergy < baseCount) return currentEnergy; // Not enough energy based on base cost
+            if (currentEnergy < baseCount) return currentEnergy; // Not enough energy based on raw base cost
 
-            // Increase score
-            setScore(s => s + actualCount);
+            // Increase score and calculate fractional coins (1 coin per 100 score increment)
+            setScore(prevScore => {
+                const newScore = prevScore + actualCount;
+                // Add coins based on the exact increment
+                // For a smooth experience, if actualCount > 0, we can add fractional coins internally,
+                // but since coins are whole numbers, we track the crossing of hundred-boundaries
+                const previousHundreds = Math.floor(prevScore / 100);
+                const currentHundreds = Math.floor(newScore / 100);
+
+                if (currentHundreds > previousHundreds) {
+                    const coinsAdded = currentHundreds - previousHundreds;
+                    setCoins(c => c + coinsAdded);
+                }
+
+                return newScore;
+            });
+
             setLastUpdate(Date.now());
 
-            // Deduct energy
+            // Deduct raw energy (Multiplier doesn't cost extra energy)
             return currentEnergy - baseCount;
         });
 
         // Return actual score added for UI overlay (floating text)
         return actualCount;
-    }, []);
+    }, [clickMultiplier, lastSuperModeTime, isSuperMode]);
 
     // Super Mode Countdown Effect
     useEffect(() => {
@@ -195,15 +298,69 @@ export const useGame = () => {
         }
     }, [superModeTimeLeft, isSuperMode]);
 
-    const triggerBoost = useCallback(() => {
-        if (dailyBoosts > 0) {
-            setEnergy(MAX_ENERGY);
-            setDailyBoosts(prev => prev - 1);
-            setLastUpdate(Date.now());
-        }
-    }, [dailyBoosts]);
+    const claimDailyCrate = useCallback((rewardType: 'coins' | 'score' | 'super', amount: number = 0) => {
+        if (hasClaimedDailyCrate) return;
 
-    // Calculate Next Level Progress
+        if (rewardType === 'coins') setCoins(c => c + amount);
+        if (rewardType === 'score') setScore(s => s + amount);
+        if (rewardType === 'super') {
+            setIsSuperMode(true);
+            setSuperModeTimeLeft(15); // Crate super mode lasts 15s instead of 10
+            setLastSuperModeTime(Date.now());
+            setDailyQuestsProgress(prev => ({ ...prev, superModes: prev.superModes + 1 }));
+        }
+
+        setEnergy(maxEnergy); // Also refills energy as a bonus
+        setHasClaimedDailyCrate(true);
+    }, [hasClaimedDailyCrate, maxEnergy]);
+
+    const trackUpgradeBought = useCallback(() => {
+        setDailyQuestsProgress(prev => ({ ...prev, upgrades: prev.upgrades + 1 }));
+    }, []);
+
+    const claimOfflineEarnings = useCallback(() => {
+        if (!offlineEarnings) return;
+        setScore(s => s + offlineEarnings.score);
+        setCoins(c => c + offlineEarnings.coins);
+        setOfflineEarnings(null);
+    }, [offlineEarnings]);
+
+    const spinWheel = useCallback(() => {
+        if (coins < 100) return { success: false, reward: null };
+
+        setCoins(c => c - 100);
+
+        const rand = Math.random() * 100;
+        let reward: { type: string, value: number, label: string } | null = null;
+
+        if (rand < 0.1) {
+            setCoins(c => c + 1000);
+            reward = { type: 'coins', value: 1000, label: '🎰 ДЖЕКПОТ! 1,000 Монет!' };
+        } else if (rand < 1.1) {
+            setScore(s => s + 5000);
+            reward = { type: 'score', value: 5000, label: '🔥 5,000 Сили!' };
+        } else if (rand < 6.1) {
+            setIsSuperMode(true);
+            setSuperModeTimeLeft(15);
+            setLastSuperModeTime(Date.now());
+            reward = { type: 'super', value: 15, label: '⚡ Супер Режим (15с)!' };
+        } else if (rand < 16.1) {
+            setEnergy(maxEnergy);
+            setScore(s => s + 1000);
+            reward = { type: 'energy', value: 1000, label: '🔋 Повна Енергія + 1000 Сили' };
+        } else if (rand < 36.1) {
+            setCoins(c => c + 250);
+            reward = { type: 'coins', value: 250, label: '💰 250 Монет' };
+        } else if (rand < 56.1) {
+            setScore(s => s + 2500);
+            reward = { type: 'score', value: 2500, label: '🤌 2,500 Сили' };
+        } else {
+            // Nothing
+            reward = { type: 'nothing', value: 0, label: '😢 Упс... Нічого' };
+        }
+
+        return { success: true, reward };
+    }, [coins, maxEnergy]);
 
     // Calculate Next Level Progress
     const nextLevel = LEVELS.find(lvl => lvl.id === currentLevel.id + 1);
@@ -213,16 +370,32 @@ export const useGame = () => {
 
     return {
         score,
+        coins,
+        setCoins,
         energy,
-        MAX_ENERGY,
+        maxEnergy,
+        setMaxEnergy,
+        energyRegenRate,
+        setEnergyRegenRate,
+        clickMultiplier,
+        setClickMultiplier,
         currentLevel,
         nextLevel,
         progressToNextLevel,
         handleTap,
         forceSync,
-        dailyBoosts,
-        triggerBoost,
+        hasClaimedDailyCrate,
+        claimDailyCrate,
         isSuperMode,
-        superModeTimeLeft
+        superModeTimeLeft,
+        loginStreak,
+        offlineEarnings,
+        setOfflineEarnings,
+        claimOfflineEarnings,
+        dailyQuestsProgress,
+        dailyQuestsClaimed,
+        setDailyQuestsClaimed,
+        trackUpgradeBought,
+        spinWheel
     };
 };
