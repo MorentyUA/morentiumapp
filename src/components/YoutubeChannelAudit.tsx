@@ -131,7 +131,7 @@ export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
                         <button
                             type="button"
                             onClick={() => setQuery('')}
-                            className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                            className="absolute right-[7rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
                         >
                             <X className="w-3 h-3" />
                         </button>

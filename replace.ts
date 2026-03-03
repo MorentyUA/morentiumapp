@@ -11,7 +11,10 @@ files.forEach(f => {
     const full = path.join(process.cwd(), 'src', 'components', f);
     if (fs.existsSync(full)) {
         let content = fs.readFileSync(full, 'utf8');
-        content = content.replace(/className="absolute right-\[8\.5rem\] top-1\/2 -translate-y-1\/2 p-1\.5 bg-slate-800/g, 'className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800');
+        content = content.replace(/absolute right-\[4\.5rem\]/g, 'absolute right-[7rem]');
+        content = content.replace(/absolute right-\[6\.5rem\]/g, 'absolute right-[7rem]');
+        content = content.replace(/absolute right-\[8\.5rem\]/g, 'absolute right-[7rem]');
+        content = content.replace(/absolute right-\[7\.5rem\]/g, 'absolute right-[7rem]');
         fs.writeFileSync(full, content);
     }
 });
