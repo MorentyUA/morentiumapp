@@ -33,7 +33,29 @@ export const LEVELS: LevelInfo[] = [
     { id: 17, name: "Діамантова кнопка", threshold: 1500000, icon: "text-[#b9f2ff]" },
     { id: 18, name: "Кібер-кнопка", threshold: 3000000, icon: "text-[#00FF00]" },
     { id: 19, name: "Плазмова кнопка", threshold: 5000000, icon: "text-[#B026FF]" },
-    { id: 20, name: "Космічна кнопка", threshold: 10000000, icon: "text-[#0B3D91]" }
+    { id: 20, name: "Космічна кнопка", threshold: 10000000, icon: "text-[#0B3D91]" },
+    // Phase 28: 20 New God-Tier Levels
+    { id: 21, name: "Метеоритна кнопка", threshold: 15000000, icon: "text-[#8C3A3A]" },
+    { id: 22, name: "Зоряна кнопка", threshold: 25000000, icon: "text-[#FFFACD]" },
+    { id: 23, name: "Пульсарова кнопка", threshold: 40000000, icon: "text-[#4B0082]" },
+    { id: 24, name: "Квазарова кнопка", threshold: 65000000, icon: "text-[#FF4500]" },
+    { id: 25, name: "Галактична кнопка", threshold: 100000000, icon: "text-[#8A2BE2]" },
+    { id: 26, name: "Антиматерієва кнопка", threshold: 150000000, icon: "text-[#000000]" },
+    { id: 27, name: "Сингулярна кнопка", threshold: 250000000, icon: "text-[#191970]" },
+    { id: 28, name: "Екзопланетна кнопка", threshold: 400000000, icon: "text-[#20B2AA]" },
+    { id: 29, name: "Супернова кнопка", threshold: 600000000, icon: "text-[#FF8C00]" },
+    { id: 30, name: "Гіпернова кнопка", threshold: 900000000, icon: "text-[#FF1493]" },
+    // God Levels (1B+)
+    { id: 31, name: "Просторова кнопка", threshold: 1500000000, icon: "text-[#00CED1]" },
+    { id: 32, name: "Часова кнопка", threshold: 2500000000, icon: "text-[#DDA0DD]" },
+    { id: 33, name: "Квантова кнопка", threshold: 4000000000, icon: "text-[#7FFFD4]" },
+    { id: 34, name: "Хроно-кнопка", threshold: 6000000000, icon: "text-[#B8860B]" },
+    { id: 35, name: "Ефірна кнопка", threshold: 9000000000, icon: "text-[#E6E6FA]" },
+    { id: 36, name: "Астральна кнопка", threshold: 13000000000, icon: "text-[#FFB6C1]" },
+    { id: 37, name: "Небесна кнопка", threshold: 20000000000, icon: "text-[#F0F8FF]" },
+    { id: 38, name: "Божественна кнопка", threshold: 30000000000, icon: "text-[#FFD700]" },
+    { id: 39, name: "Омні-кнопка", threshold: 50000000000, icon: "text-[#FFFAFA]" },
+    { id: 40, name: "Кнопка Творця", threshold: 100000000000, icon: "text-[#FFFFFF]" }
 ];
 
 export const LEVEL_THRESHOLDS = LEVELS;

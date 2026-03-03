@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { query, minSubs = '0', maxSubs = '10000', format = 'all', key } = req.query;
+    const { query, minSubs = '0', maxSubs = '10000', minViews = '0', maxViews = '1000000000', region = '', format = 'all', key } = req.query;
     const API_KEY = key || process.env.YOUTUBE_API_KEY;
 
     if (!API_KEY) {
@@ -30,6 +30,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try {
         const minS = parseInt(minSubs as string, 10) || 0;
         const maxS = parseInt(maxSubs as string, 10) || 10000;
+        const minV = parseInt(minViews as string, 10) || 0;
+        const maxV = parseInt(maxViews as string, 10) || 1000000000;
+        const reg = region as string;
         const fmt = format as string;
 
         // Date Boundary (Last 7 Days)
@@ -40,6 +43,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         // Build base search params
         // Removed &videoDuration because YouTube drops valid results when chained with publishedAfter
         let baseParams = `part=snippet&maxResults=50&q=${encodeURIComponent(query as string)}&type=video&order=viewCount&key=${API_KEY}`;
+
+        if (reg && reg.length === 2) {
+            baseParams += `&regionCode=${reg}`;
+        }
 
         if (fmt === 'stream') {
             baseParams += '&eventType=live';
@@ -145,7 +152,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             if (fmt === 'video' && (isShort || isLive)) continue;
             if (fmt === 'stream' && !isLive) continue;
 
-            if (subs >= minS && subs <= maxS) {
+            if (subs >= minS && subs <= maxS && views >= minV && views <= maxV) {
                 // Determine if it looks like a Short based on view/sub ratio or title heuristics if `videoDuration` wasn't perfectly strict
                 // We rely entirely on the API parameters for format filtering, but we could add manual title checks here if needed.
                 filteredResults.push({

@@ -11,6 +11,9 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
     const [query, setQuery] = useState('');
     const [minSubs, setMinSubs] = useState<number>(0);
     const [maxSubs, setMaxSubs] = useState<number>(10000);
+    const [minViews, setMinViews] = useState<number>(0);
+    const [maxViews, setMaxViews] = useState<number>(1000000000);
+    const [region, setRegion] = useState<string>('');
     const [format, setFormat] = useState<'all' | 'video' | 'shorts' | 'stream'>('all');
 
     const [isLoading, setIsLoading] = useState(false);
@@ -56,7 +59,7 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
 
         try {
             const activeKey = customApiKey || globalApiKey;
-            const endpoint = `/api/youtube-super-search?query=${encodeURIComponent(query)}&minSubs=${minSubs}&maxSubs=${maxSubs}&format=${format}${activeKey ? `&key=${activeKey}` : ''}`;
+            const endpoint = `/api/youtube-super-search?query=${encodeURIComponent(query)}&minSubs=${minSubs}&maxSubs=${maxSubs}&minViews=${minViews}&maxViews=${maxViews}&region=${region}&format=${format}${activeKey ? `&key=${activeKey}` : ''}`;
             const response = await fetch(endpoint);
             const data = await response.json();
 
@@ -181,6 +184,56 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
                                 className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
                             />
                         </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4 bg-slate-900/30 p-4 rounded-2xl border border-white/5">
+                        <div className="flex-1 space-y-1">
+                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center">
+                                <Eye className="w-3 h-3 mr-1" /> Від (Переглядів)
+                            </label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={minViews}
+                                onChange={(e) => setMinViews(parseInt(e.target.value) || 0)}
+                                className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
+                            />
+                        </div>
+                        <div className="flex items-center justify-center pt-5 hidden sm:flex">
+                            <SlidersHorizontal className="w-4 h-4 text-slate-500" />
+                        </div>
+                        <div className="flex-1 space-y-1">
+                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center">
+                                <Eye className="w-3 h-3 mr-1" /> До (Переглядів)
+                            </label>
+                            <input
+                                type="number"
+                                min="0"
+                                value={maxViews}
+                                onChange={(e) => setMaxViews(parseInt(e.target.value) || 0)}
+                                className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
+                            />
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-900/30 p-4 rounded-2xl border border-white/5 space-y-1">
+                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center">
+                            Географія (Регіон)
+                        </label>
+                        <select
+                            value={region}
+                            onChange={(e) => setRegion(e.target.value)}
+                            className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm appearance-none"
+                        >
+                            <option value="">🌍 Весь світ (Без фільтру)</option>
+                            <option value="UA">🇺🇦 Україна</option>
+                            <option value="US">🇺🇸 США</option>
+                            <option value="GB">🇬🇧 Велика Британія</option>
+                            <option value="PL">🇵🇱 Польща</option>
+                            <option value="DE">🇩🇪 Німеччина</option>
+                            <option value="KZ">🇰🇿 Казахстан</option>
+                            <option value="IN">🇮🇳 Індія</option>
+                        </select>
                     </div>
 
                     <button

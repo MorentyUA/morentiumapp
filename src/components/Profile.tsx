@@ -185,20 +185,29 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
 
                 <div className="flex items-center justify-between relative z-10">
-                    <div className="flex items-center space-x-4">
-                        <div className={`p-3 rounded-2xl shadow-inner bg-opacity-20 ${currentLevel.icon.replace('text-', 'bg-')}`}>
-                            <Play className={`w-8 h-8 fill-current drop-shadow-md ${currentLevel.icon}`} />
+                    <div className="flex items-center space-x-3 sm:space-x-4 min-w-0 pr-2">
+                        <div className={`p-3 rounded-2xl shadow-inner bg-opacity-20 shrink-0 ${currentLevel.icon.replace('text-', 'bg-')}`}>
+                            <Play className={`w-6 h-6 sm:w-8 sm:h-8 fill-current drop-shadow-md ${currentLevel.icon}`} />
                         </div>
-                        <div>
-                            <p className="text-xs text-purple-400 font-bold uppercase tracking-widest mb-1">Клікер Ранг</p>
-                            <h3 className={`font-black text-xl ${currentLevel.icon} drop-shadow-md`}>
+                        <div className="min-w-0">
+                            <p className="text-[10px] sm:text-xs text-purple-400 font-bold uppercase tracking-widest mb-1 truncate">Клікер Ранг</p>
+                            <h3 className={`font-black text-sm sm:text-lg leading-tight whitespace-normal break-words ${currentLevel.icon} drop-shadow-md`}>
                                 {currentLevel.name}
                             </h3>
                         </div>
                     </div>
-                    <div className="text-right">
-                        <p className="text-sm text-slate-400 font-medium tracking-wide mb-1">Кліки</p>
-                        <p className="text-2xl font-black text-white">{score.toLocaleString('uk-UA')}</p>
+                    <div className="text-right shrink-0 pl-2">
+                        <p className="text-xs sm:text-sm text-slate-400 font-medium tracking-wide mb-1 whitespace-nowrap">Кліки</p>
+                        <p
+                            className="font-black text-white whitespace-nowrap"
+                            style={{
+                                fontSize: score.toLocaleString('uk-UA').length > 13 ? '0.9rem' : score.toLocaleString('uk-UA').length > 9 ? '1.1rem' : score.toLocaleString('uk-UA').length > 7 ? '1.3rem' : '1.5rem',
+                                lineHeight: '1.2',
+                                letterSpacing: '0.05em'
+                            }}
+                        >
+                            {score.toLocaleString('uk-UA')}
+                        </p>
                     </div>
                 </div>
             </div>

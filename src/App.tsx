@@ -13,6 +13,7 @@ import { YoutubeSuperSearch } from './components/YoutubeSuperSearch';
 import { YoutubeTagsGenerator } from './components/YoutubeTagsGenerator';
 import { YoutubeThumbnailSimulator } from './components/YoutubeThumbnailSimulator';
 import { YoutubeChannelAudit } from './components/YoutubeChannelAudit';
+import { YoutubeRevenue } from './components/YoutubeRevenue';
 import { getCategories, getItems } from './lib/store';
 import { type Category, type Item, ADMIN_ID } from './types';
 import { useTelegram } from './hooks/useTelegram';
@@ -23,7 +24,7 @@ import { GameView } from './components/GameView';
 
 function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'tools' | 'profile' | 'game'>('dashboard');
-  const [activeTool, setActiveTool] = useState<'tracker' | 'spy' | 'comments' | 'trends' | 'super' | 'tags' | 'thumbnail' | 'audit' | null>(null);
+  const [activeTool, setActiveTool] = useState<'tracker' | 'spy' | 'comments' | 'trends' | 'super' | 'tags' | 'thumbnail' | 'audit' | 'revenue' | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [items, setItems] = useState<Item[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
@@ -238,6 +239,13 @@ function App() {
               </button>
               <YoutubeChannelAudit key="audit" globalApiKey={import.meta.env.VITE_YOUTUBE_API_KEY || ''} />
             </div>
+          ) : activeTool === 'revenue' ? (
+            <div className="relative">
+              <button onClick={() => setActiveTool(null)} className="absolute top-6 left-4 z-50 p-2 bg-white/5 rounded-xl text-slate-400 hover:text-white backdrop-blur-md">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6" /></svg>
+              </button>
+              <YoutubeRevenue key="revenue" />
+            </div>
           ) : (
             <motion.div key="tools-menu" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-6 mb-24 min-h-screen">
               <div className="mb-8 pt-4">
@@ -327,6 +335,34 @@ function App() {
                     <div>
                       <h3 className="text-lg font-bold text-orange-50 mb-1">Аудит Каналу</h3>
                       <p className="text-sm text-slate-400">Перевірка "здоров'я" каналу та аналіз топових відео.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* VIP Revenue Calculator */}
+                <div
+                  onClick={() => {
+                    if (!isAdmin && !import.meta.env.DEV && !isPrivateSubscribed) {
+                      showVIPPopup();
+                      return;
+                    }
+                    setActiveTool('revenue');
+                  }}
+                  className="glass-card p-5 cursor-pointer relative overflow-hidden group hover:bg-white/5 transition-colors border-emerald-500/30"
+                >
+                  {/* VIP Badge */}
+                  <div className="absolute top-0 right-0 bg-emerald-500/20 px-3 py-1 rounded-bl-xl border-b border-l border-emerald-500/30 text-[10px] font-black tracking-wider uppercase text-emerald-400 flex items-center shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /></svg>
+                    VIP
+                  </div>
+
+                  <div className="flex items-center gap-4 mt-2">
+                    <div className="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="2" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold text-emerald-50 mb-1">Калькулятор Доходів</h3>
+                      <p className="text-sm text-slate-400">Скільки заробляє канал за місяць та рік.</p>
                     </div>
                   </div>
                 </div>

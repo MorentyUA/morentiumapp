@@ -113,40 +113,49 @@ export const GameView: React.FC = () => {
                         forceSync();
                         setIsLeaderboardOpen(true);
                     }}
-                    className="absolute right-0 top-0 sm:right-4 p-2 sm:p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 flex flex-col items-center justify-center transition-colors shadow-lg"
+                    className="absolute right-0 top-0 sm:right-4 p-1.5 sm:p-2 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 flex flex-col items-center justify-center transition-colors shadow-lg"
                 >
-                    <Trophy className="w-5 h-5 text-yellow-500 mb-1" />
-                    <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">Топ 10</span>
+                    <Trophy className="w-4 h-4 text-yellow-500 mb-0.5" />
+                    <span className="text-[9px] font-bold text-slate-300 uppercase tracking-wider">Топ 10</span>
                 </button>
 
                 <button
                     onClick={() => setIsShopOpen(true)}
-                    className="absolute left-0 top-0 sm:left-4 p-2 sm:p-3 bg-purple-500/10 hover:bg-purple-500/20 rounded-2xl border border-purple-500/30 flex flex-col items-center justify-center transition-colors shadow-lg"
+                    className="absolute left-0 top-0 sm:left-4 p-1.5 sm:p-2 bg-purple-500/10 hover:bg-purple-500/20 rounded-2xl border border-purple-500/30 flex flex-col items-center justify-center transition-colors shadow-lg"
                 >
-                    <Store className="w-5 h-5 text-purple-400 mb-1" />
-                    <span className="text-[10px] font-bold text-purple-300 uppercase tracking-wider">Магазин</span>
+                    <Store className="w-4 h-4 text-purple-400 mb-0.5" />
+                    <span className="text-[9px] font-bold text-purple-300 uppercase tracking-wider">Магазин</span>
                 </button>
 
                 <button
                     onClick={() => setIsQuestsOpen(true)}
-                    className="absolute left-0 top-[72px] sm:left-4 sm:top-[80px] p-2 sm:p-3 bg-blue-500/10 hover:bg-blue-500/20 rounded-2xl border border-blue-500/30 flex flex-col items-center justify-center transition-colors shadow-lg"
+                    className="absolute left-0 top-[52px] sm:left-4 sm:top-[60px] p-1.5 sm:p-2 bg-blue-500/10 hover:bg-blue-500/20 rounded-2xl border border-blue-500/30 flex flex-col items-center justify-center transition-colors shadow-lg"
                 >
-                    <ClipboardList className="w-5 h-5 text-blue-400 mb-1" />
-                    <span className="text-[10px] font-bold text-blue-300 uppercase tracking-wider">Квести</span>
+                    <ClipboardList className="w-4 h-4 text-blue-400 mb-0.5" />
+                    <span className="text-[9px] font-bold text-blue-300 uppercase tracking-wider">Квести</span>
                 </button>
 
                 <button
                     onClick={() => setIsWheelOpen(true)}
-                    className="absolute right-0 top-[72px] sm:right-4 sm:top-[80px] p-2 sm:p-3 bg-red-500/10 hover:bg-red-500/20 rounded-2xl border border-red-500/30 flex flex-col items-center justify-center transition-colors shadow-lg"
+                    className="absolute right-0 top-[52px] sm:right-4 sm:top-[60px] p-1.5 sm:p-2 bg-red-500/10 hover:bg-red-500/20 rounded-2xl border border-red-500/30 flex flex-col items-center justify-center transition-colors shadow-lg"
                 >
-                    <Dices className="w-5 h-5 text-red-400 mb-1" />
-                    <span className="text-[10px] font-bold text-red-300 uppercase tracking-wider">Рулетка</span>
+                    <Dices className="w-4 h-4 text-red-400 mb-0.5" />
+                    <span className="text-[9px] font-bold text-red-300 uppercase tracking-wider">Рулетка</span>
                 </button>
 
                 <div className="flex flex-col items-center gap-1 mb-6 mt-4">
-                    <div className="flex items-center space-x-2 bg-white/5 px-6 py-2 rounded-2xl border border-white/10 drop-shadow-md">
-                        <Trophy className="w-5 h-5 text-yellow-500" />
-                        <span className="text-3xl font-black text-white tracking-widest">{score.toLocaleString('uk-UA')}</span>
+                    <div className="flex items-center space-x-2 bg-white/5 px-3 sm:px-6 py-2 rounded-2xl border border-white/10 drop-shadow-md flex-shrink-0">
+                        <Trophy className="w-5 h-5 text-yellow-500 shrink-0" />
+                        <span
+                            className="font-black text-white whitespace-nowrap"
+                            style={{
+                                fontSize: score.toLocaleString('uk-UA').length > 13 ? '1rem' : score.toLocaleString('uk-UA').length > 10 ? '1.25rem' : score.toLocaleString('uk-UA').length > 7 ? '1.5rem' : '1.875rem',
+                                lineHeight: '1.2',
+                                letterSpacing: '0.05em'
+                            }}
+                        >
+                            {score.toLocaleString('uk-UA')}
+                        </span>
                     </div>
                     <div className="flex items-center space-x-1.5 px-4 py-1.5 bg-amber-500/20 rounded-full border border-amber-500/30">
                         <Coins className="w-4 h-4 text-amber-400" />
