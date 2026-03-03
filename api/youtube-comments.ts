@@ -11,19 +11,19 @@ export interface YoutubeComment {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Метод не підтримується' });
     }
 
     const query = req.query.q as string;
     if (!query) {
-        return res.status(400).json({ error: 'Missing query parameter (YouTube URL)' });
+        return res.status(400).json({ error: 'Відсутній параметр (YouTube URL)' });
     }
 
     const customKey = req.query.key as string;
     const API_KEY = customKey || process.env.YOUTUBE_API_KEY;
 
     if (!API_KEY) {
-        return res.status(500).json({ error: 'YouTube API Key is missing' });
+        return res.status(500).json({ error: 'YouTube API ключ відсутній' });
     }
 
     try {
@@ -45,7 +45,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
         if (!commentsResponse.ok) {
             const errorData = await commentsResponse.json();
-            throw new Error(errorData.error?.message || 'Failed to fetch comments');
+            throw new Error(errorData.error?.message || 'Не вдалося завантажити коментарі');
         }
 
         const commentsData = await commentsResponse.json();

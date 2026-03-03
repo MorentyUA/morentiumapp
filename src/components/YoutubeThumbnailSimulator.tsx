@@ -176,14 +176,25 @@ export const YoutubeThumbnailSimulator: React.FC<Props> = ({ globalApiKey }) => 
                         <div className="space-y-4 flex flex-col justify-center">
                             <div>
                                 <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">Назва вашого відео</label>
-                                <input
-                                    type="text"
-                                    value={customTitle}
-                                    onChange={(e) => setCustomTitle(e.target.value)}
-                                    placeholder="Напишіть клікбейтну назву..."
-                                    className="w-full px-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
-                                    required
-                                />
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={customTitle}
+                                        onChange={(e) => setCustomTitle(e.target.value)}
+                                        placeholder="Напишіть клікбейтну назву..."
+                                        className="w-full pl-4 pr-11 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500/50 transition-colors text-xs sm:text-sm"
+                                        required
+                                    />
+                                    {customTitle && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setCustomTitle('')}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    )}
+                                </div>
                             </div>
                             <div>
                                 <label className="block text-xs font-bold text-slate-400 uppercase mb-1.5 ml-1">Ніша (хто ваші конкуренти?)</label>
@@ -194,9 +205,18 @@ export const YoutubeThumbnailSimulator: React.FC<Props> = ({ globalApiKey }) => 
                                         value={nicheQuery}
                                         onChange={(e) => setNicheQuery(e.target.value)}
                                         placeholder="Напр: 'react tutorial'"
-                                        className="w-full pl-10 pr-4 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500/50 transition-colors text-sm"
+                                        className="w-full pl-10 pr-11 py-3 bg-slate-900/50 border border-slate-700 rounded-xl text-white focus:outline-none focus:border-blue-500/50 transition-colors text-xs sm:text-sm"
                                         required
                                     />
+                                    {nicheQuery && (
+                                        <button
+                                            type="button"
+                                            onClick={() => setNicheQuery('')}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                                        >
+                                            <X className="w-3 h-3" />
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>

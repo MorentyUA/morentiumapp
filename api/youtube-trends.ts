@@ -12,14 +12,14 @@ export interface TrendingVideo {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Метод не підтримується' });
     }
 
     const { regionCode = 'UA', categoryId = '0', key } = req.query;
     const API_KEY = key || process.env.YOUTUBE_API_KEY;
 
     if (!API_KEY) {
-        return res.status(500).json({ error: 'YouTube API Key is missing' });
+        return res.status(500).json({ error: 'YouTube API ключ відсутній' });
     }
 
     try {
@@ -38,7 +38,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
             if (!response.ok) {
                 // If the category is invalid for the region, YouTube throws a 400. Break gracefully if first page worked.
-                if (i === 0) throw new Error('Failed to fetch trending videos');
+                if (i === 0) throw new Error('Не вдалося завантажити тренди');
                 break;
             }
 

@@ -13,14 +13,14 @@ export interface SuperSearchVideo {
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Метод не підтримується' });
     }
 
     const { query, minSubs = '0', maxSubs = '10000', minViews = '0', maxViews = '1000000000', region = '', format = 'all', key } = req.query;
     const API_KEY = key || process.env.YOUTUBE_API_KEY;
 
     if (!API_KEY) {
-        return res.status(500).json({ error: 'YouTube API Key is missing' });
+        return res.status(500).json({ error: 'YouTube API ключ відсутній' });
     }
 
     if (!query) {

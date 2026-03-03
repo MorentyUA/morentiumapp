@@ -2,19 +2,19 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Метод не підтримується' });
     }
 
     const query = req.query.q as string;
     if (!query) {
-        return res.status(400).json({ error: 'Missing query parameter (YouTube URL)' });
+        return res.status(400).json({ error: 'Відсутній параметр (YouTube URL)' });
     }
 
     const customKey = req.query.key as string;
     const API_KEY = customKey || process.env.YOUTUBE_API_KEY;
 
     if (!API_KEY) {
-        return res.status(500).json({ error: 'YouTube API Key is missing on the server and no custom key was provided' });
+        return res.status(500).json({ error: 'YouTube API ключ відсутній' });
     }
 
     try {
@@ -124,7 +124,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const videoData = await videoRes.json();
 
         if (!videoData.items || videoData.items.length === 0) {
-            return res.status(404).json({ error: 'Video not found or is private' });
+            return res.status(404).json({ error: 'Відео не знайдено або воно приватне' });
         }
 
         const video = videoData.items[0];
@@ -160,6 +160,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } catch (error: any) {
         console.error('YouTube Spy API Error:', error);
-        res.status(500).json({ error: 'Failed to fetch YouTube Video data', details: error.message });
+        res.status(500).json({ error: 'Не вдалося отримати дані з YouTube', details: error.message });
     }
 }

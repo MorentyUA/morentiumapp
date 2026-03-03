@@ -28,6 +28,13 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
         return () => window.removeEventListener('game_state_updated', handleGameUpdate);
     }, []);
 
+    const formatScore = (s: number) => {
+        if (s >= 1000000) {
+            return `${Math.floor(s / 1000000)}M ${(s % 1000000).toString().padStart(6, '0').slice(0, 3)} ${(s % 1000000).toString().padStart(6, '0').slice(3)}`;
+        }
+        return s.toLocaleString('uk-UA');
+    };
+
     // Progress Bar Math
     const totalItems = items.length;
     const completedCount = completedItemIds.length;
@@ -201,12 +208,12 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                         <p
                             className="font-black text-white whitespace-nowrap"
                             style={{
-                                fontSize: score.toLocaleString('uk-UA').length > 13 ? '0.9rem' : score.toLocaleString('uk-UA').length > 9 ? '1.1rem' : score.toLocaleString('uk-UA').length > 7 ? '1.3rem' : '1.5rem',
+                                fontSize: score >= 1000000000 ? '0.9rem' : score >= 10000000 ? '1.1rem' : score >= 1000000 ? '1.3rem' : '1.5rem',
                                 lineHeight: '1.2',
                                 letterSpacing: '0.05em'
                             }}
                         >
-                            {score.toLocaleString('uk-UA')}
+                            {formatScore(score)}
                         </p>
                     </div>
                 </div>

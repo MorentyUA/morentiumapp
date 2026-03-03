@@ -2,7 +2,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method Not Allowed' });
+        return res.status(405).json({ error: 'Метод не підтримується' });
     }
 
     const { query, apiKey, regionCode = 'US', maxResults = '10' } = req.query;
@@ -13,7 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (!query || !finalApiKey) {
-        return res.status(400).json({ error: 'Missing query or apiKey' });
+        return res.status(400).json({ error: 'Відсутній запит або API ключ' });
     }
 
     try {
@@ -85,6 +85,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     } catch (error) {
         console.error('YouTube Tags API Error:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        res.status(500).json({ error: 'Внутрішня помилка сервера' });
     }
 }

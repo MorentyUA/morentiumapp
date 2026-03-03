@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, Zap, Play, Store, Coins, Battery, Gift, ArrowUpCircle, Sparkles, ClipboardList, Flame, Pickaxe, CheckCircle, Dices, Loader } from 'lucide-react';
 import { useTelegram } from '../hooks/useTelegram';
-import { useGame, DEFAULT_MAX_ENERGY, DEFAULT_REGEN_RATE, DEFAULT_MULTIPLIER } from '../hooks/useGame';
+import { useGame, DEFAULT_MAX_ENERGY, DEFAULT_MULTIPLIER } from '../hooks/useGame';
 import { Leaderboard } from './Leaderboard';
 
 interface FloatingText {
@@ -15,7 +15,7 @@ interface FloatingText {
 export const GameView: React.FC = () => {
     const { HapticFeedback } = useTelegram();
     const {
-        score, coins, setCoins, energy, maxEnergy, setMaxEnergy, energyRegenRate, setEnergyRegenRate, clickMultiplier, setClickMultiplier, currentLevel, nextLevel, progressToNextLevel,
+        score, coins, setCoins, energy, maxEnergy, setMaxEnergy, clickMultiplier, setClickMultiplier, currentLevel, nextLevel, progressToNextLevel,
         handleTap, forceSync, hasClaimedDailyCrate, claimDailyCrate, isSuperMode, superModeTimeLeft,
         loginStreak, offlineEarnings, claimOfflineEarnings, dailyQuestsProgress, dailyQuestsClaimed, setDailyQuestsClaimed, trackUpgradeBought, spinWheel
     } = useGame();
@@ -149,12 +149,14 @@ export const GameView: React.FC = () => {
                         <span
                             className="font-black text-white whitespace-nowrap"
                             style={{
-                                fontSize: score.toLocaleString('uk-UA').length > 13 ? '1rem' : score.toLocaleString('uk-UA').length > 10 ? '1.25rem' : score.toLocaleString('uk-UA').length > 7 ? '1.5rem' : '1.875rem',
+                                fontSize: score >= 1000000000 ? '1rem' : score >= 10000000 ? '1.25rem' : score >= 1000000 ? '1.5rem' : '1.875rem',
                                 lineHeight: '1.2',
                                 letterSpacing: '0.05em'
                             }}
                         >
-                            {score.toLocaleString('uk-UA')}
+                            {score >= 1000000
+                                ? `${Math.floor(score / 1000000)}M ${(score % 1000000).toString().padStart(6, '0').slice(0, 3)} ${(score % 1000000).toString().padStart(6, '0').slice(3)}`
+                                : score.toLocaleString('uk-UA')}
                         </span>
                     </div>
                     <div className="flex items-center space-x-1.5 px-4 py-1.5 bg-amber-500/20 rounded-full border border-amber-500/30">
@@ -338,45 +340,6 @@ export const GameView: React.FC = () => {
                                         >
                                             <Coins className="w-3 h-3" />
                                             {50 + (Math.floor((maxEnergy - DEFAULT_MAX_ENERGY) / 500) * 50)}
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Energy Regen Upgrade */}
-                                <div className="bg-slate-800/60 p-4 rounded-2xl border border-white/5 shadow-sm">
-                                    <div className="flex justify-between items-start mb-3">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-emerald-500/20 rounded-xl text-emerald-400">
-                                                <Zap className="w-5 h-5" />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-white text-sm">Швидкість Енергії</h4>
-                                                <p className="text-xs text-slate-400">Рівень {(energyRegenRate - DEFAULT_REGEN_RATE)}</p>
-                                            </div>
-                                        </div>
-                                        <div className="text-right">
-                                            <span className="text-[10px] uppercase text-slate-500 font-bold block mb-0.5">Ефект</span>
-                                            <span className="text-sm font-black text-emerald-400">+1 <Zap className="w-3 h-3 inline pb-0.5" />/с</span>
-                                        </div>
-                                    </div>
-                                    <div className="flex justify-between items-center mt-2">
-                                        <span className="text-sm font-bold text-slate-300">{energyRegenRate} <span className="text-xs text-slate-500 font-normal">за сек.</span></span>
-                                        <button
-                                            onClick={() => {
-                                                const cost = 100 + ((energyRegenRate - DEFAULT_REGEN_RATE) * 100);
-                                                if (coins >= cost) {
-                                                    setCoins(c => c - cost);
-                                                    setEnergyRegenRate(r => r + 1);
-                                                    trackUpgradeBought();
-                                                    try { HapticFeedback.impactOccurred('medium'); } catch (e) { }
-                                                } else {
-                                                    try { HapticFeedback.notificationOccurred('error'); } catch (e) { }
-                                                }
-                                            }}
-                                            className="px-4 py-1.5 bg-purple-500 hover:bg-purple-600 text-white text-sm font-bold rounded-xl shadow-lg transition-colors flex items-center gap-1.5"
-                                        >
-                                            <Coins className="w-3 h-3" />
-                                            {100 + ((energyRegenRate - DEFAULT_REGEN_RATE) * 100)}
                                         </button>
                                     </div>
                                 </div>

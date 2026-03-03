@@ -109,10 +109,19 @@ export const YoutubeRevenue: React.FC = () => {
                             type="text"
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
-                            placeholder="🔗 https://youtube.com/@MrBeast"
-                            className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 px-4 pl-12 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-sm"
+                            placeholder="youtube.com/@..."
+                            className="w-full bg-slate-900/50 border border-white/10 rounded-2xl py-3 pl-12 pr-11 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all text-xs sm:text-sm"
                         />
                         <LinkIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+                        {url && (
+                            <button
+                                type="button"
+                                onClick={() => setUrl('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
+                        )}
                     </div>
 
                     <button

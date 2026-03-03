@@ -46,12 +46,12 @@ export const YoutubeTagsGenerator: React.FC<Props> = ({ globalApiKey }) => {
             const resData = await res.json();
 
             if (!res.ok) {
-                throw new Error(resData.error || 'Failed to fetch tags data');
+                throw new Error(resData.error || 'Не вдалося завантажити теги');
             }
 
             setData(resData);
         } catch (err: any) {
-            setError(err.message);
+            setError(err.message || 'Сталася невідома помилка');
         } finally {
             setIsLoading(false);
         }
@@ -120,9 +120,18 @@ export const YoutubeTagsGenerator: React.FC<Props> = ({ globalApiKey }) => {
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Введіть тему відео (напр: 'react tutorial')"
-                        className="block w-full pl-12 pr-32 py-4 bg-slate-900/50 border-2 border-slate-700/50 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all text-sm shadow-inner"
+                        placeholder="youtube.com/watch..."
+                        className="block w-full pl-12 pr-32 py-4 bg-slate-900/50 border-2 border-slate-700/50 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-red-500/50 focus:border-red-500/50 transition-all text-xs sm:text-sm shadow-inner"
                     />
+                    {query && (
+                        <button
+                            type="button"
+                            onClick={() => setQuery('')}
+                            className="absolute right-[8.5rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                        >
+                            <X className="w-3 h-3" />
+                        </button>
+                    )}
                     <button
                         type="submit"
                         disabled={isLoading || !query.trim()}

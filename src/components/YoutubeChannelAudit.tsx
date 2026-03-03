@@ -129,9 +129,18 @@ export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
                         type="text"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        placeholder="Вставте посилання на канал, відео або @nickname..."
-                        className="block w-full pl-12 pr-32 py-4 bg-slate-900/50 border-2 border-slate-700/50 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-sm shadow-inner"
+                        placeholder="youtube.com/@..."
+                        className="block w-full pl-12 pr-11 py-4 bg-slate-900/50 border-2 border-slate-700/50 rounded-2xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-orange-500/50 focus:border-orange-500/50 transition-all text-xs sm:text-sm shadow-inner"
                     />
+                    {query && (
+                        <button
+                            type="button"
+                            onClick={() => setQuery('')}
+                            className="absolute right-[8.5rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                        >
+                            <X className="w-3 h-3" />
+                        </button>
+                    )}
                     <button
                         type="submit"
                         disabled={isLoading || !query.trim()}

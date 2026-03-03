@@ -19,7 +19,7 @@ const LONG_VIEW_RATIO = 0.35; // Assume 35% are long form
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (req.method !== 'GET') {
-        return res.status(405).json({ error: 'Method not allowed' });
+        return res.status(405).json({ error: 'Метод не підтримується' });
     }
 
     const { channel, key } = req.query;
@@ -30,7 +30,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const apiKey = key || process.env.YOUTUBE_API_KEY;
     if (!apiKey) {
-        return res.status(500).json({ error: 'YouTube API Key is missing' });
+        return res.status(500).json({ error: 'YouTube API ключ відсутній' });
     }
 
     try {

@@ -45,6 +45,13 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose, curre
         }
     };
 
+    const formatScore = (s: number) => {
+        if (s >= 1000000) {
+            return `${Math.floor(s / 1000000)}M ${(s % 1000000).toString().padStart(6, '0').slice(0, 3)} ${(s % 1000000).toString().padStart(6, '0').slice(3)}`;
+        }
+        return s.toLocaleString('uk-UA');
+    };
+
     return (
         <AnimatePresence>
             {isOpen && (
@@ -113,7 +120,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose, curre
 
                                             <div className="text-right">
                                                 <span className={`font-black ${isMe ? 'text-yellow-400' : 'text-white'}`}>
-                                                    {leader.score.toLocaleString('uk-UA')}
+                                                    {formatScore(leader.score)}
                                                 </span>
                                             </div>
                                         </div>
@@ -125,7 +132,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose, curre
                         {/* Footer Personal Stats */}
                         <div className="p-4 bg-slate-900 border-t border-white/5 flex justify-between items-center shrink-0">
                             <span className="text-slate-400 text-sm font-medium">Ваш рекорд:</span>
-                            <span className="text-white font-black text-lg">{currentScore.toLocaleString('uk-UA')}</span>
+                            <span className="text-white font-black text-lg">{formatScore(currentScore)}</span>
                         </div>
                     </motion.div>
                 </motion.div>

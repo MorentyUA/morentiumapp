@@ -112,12 +112,21 @@ export const YoutubeSpy: React.FC = () => {
                 <form onSubmit={handleSearch} className="relative">
                     <input
                         type="text"
-                        placeholder="Посилання: відео, Shorts або канал"
+                        placeholder="youtube.com/..."
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-                        className="w-full text-sm sm:text-base bg-black/40 border border-indigo-500/30 rounded-2xl py-4 pl-12 pr-4 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400 transition-colors shadow-inner"
+                        className="w-full text-xs sm:text-sm bg-black/40 border border-indigo-500/30 rounded-2xl py-4 pl-12 pr-[4.5rem] text-white placeholder-slate-500 focus:outline-none focus:border-indigo-400 transition-colors shadow-inner"
                     />
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-400" />
+                    {query && (
+                        <button
+                            type="button"
+                            onClick={() => setQuery('')}
+                            className="absolute right-[4rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                        >
+                            <X className="w-3 h-3" />
+                        </button>
+                    )}
                     <button
                         type="submit"
                         disabled={isLoading || !query.trim()}
