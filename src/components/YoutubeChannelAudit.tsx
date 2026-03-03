@@ -89,12 +89,7 @@ export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
         return num.toString();
     };
 
-    const getGradeColor = (grade: string) => {
-        if (grade.includes('A')) return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30';
-        if (grade.includes('B')) return 'text-blue-400 bg-blue-500/10 border-blue-500/30';
-        if (grade.includes('C')) return 'text-yellow-400 bg-yellow-500/10 border-yellow-500/30';
-        return 'text-red-400 bg-red-500/10 border-red-500/30';
-    };
+
 
     return (
         <motion.div
@@ -176,7 +171,7 @@ export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
 
                             <div className="flex-1 text-center sm:text-left relative z-10 w-full">
                                 <h2 className="text-2xl sm:text-3xl font-extrabold text-white mb-2">{data.channel.title}</h2>
-                                <div className="flex flex-wrap justify-center sm:justify-start gap-3 mb-4">
+                                <div className="flex flex-wrap justify-center sm:justify-start gap-3 mt-4">
                                     <span className="bg-slate-900/80 text-slate-300 px-3 py-1 rounded-lg text-sm font-medium flex items-center border border-white/5">
                                         <Users className="w-4 h-4 mr-2 text-indigo-400" /> {formatNumber(data.channel.subs)} підп.
                                     </span>
@@ -184,15 +179,6 @@ export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
                                         <Video className="w-4 h-4 mr-2 text-rose-400" /> {formatNumber(data.channel.totalUploads)} відео
                                     </span>
                                 </div>
-                                <div className="p-4 bg-slate-900/50 border border-slate-700 rounded-2xl">
-                                    <p className="text-slate-200 text-sm leading-relaxed"><span className="font-bold text-slate-400">Висновок ШІ:</span> {data.audit.verdict}</p>
-                                </div>
-                            </div>
-
-                            {/* Huge Grade Badge */}
-                            <div className={`flex-shrink-0 w-24 h-24 sm:w-28 sm:h-28 rounded-3xl flex flex-col items-center justify-center border-2 shadow-xl ${getGradeColor(data.audit.grade)} rotate-3`}>
-                                <span className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Оцінка</span>
-                                <span className="text-4xl sm:text-5xl font-black drop-shadow-md">{data.audit.grade}</span>
                             </div>
                         </div>
 
@@ -219,7 +205,7 @@ export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
                                     <Users className="w-6 h-6" />
                                 </div>
                                 <span className="text-3xl font-black text-white mb-1">{data.audit.subViewRatio}%</span>
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Співвідношення Пер/Підп</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Співвідн. Пер/Підп (Хто дивиться з підписок)</span>
                             </div>
                         </div>
 
