@@ -131,7 +131,7 @@ export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
                         <button
                             type="button"
                             onClick={() => setQuery('')}
-                            className="absolute right-[8.5rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                            className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
                         >
                             <X className="w-3 h-3" />
                         </button>
@@ -200,12 +200,27 @@ export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Сер. залученість (Лайки+Коменти)</span>
                             </div>
 
-                            <div className="bg-slate-800/80 backdrop-blur-md border border-white/10 p-6 rounded-3xl flex flex-col items-center text-center">
-                                <div className="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mb-4">
+                            <div className="bg-slate-800/80 backdrop-blur-md border border-white/10 p-6 rounded-3xl flex flex-col items-center w-full">
+                                <div className="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center mb-3">
                                     <Users className="w-6 h-6" />
                                 </div>
                                 <span className="text-3xl font-black text-white mb-1">{data.audit.subViewRatio}%</span>
-                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Співвідн. Пер/Підп (Хто дивиться з підписок)</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider text-center mb-4">Відсоток активних підписників</span>
+
+                                <div className="w-full bg-slate-900/80 rounded-xl p-3 border border-white/5 space-y-2 text-xs">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-400">Сер. Перегляди:</span>
+                                        <span className="font-bold text-sky-400">{formatNumber(data.audit.avgViews)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-slate-400">Всього Підписників:</span>
+                                        <span className="font-bold text-indigo-400">{formatNumber(data.channel.subs)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center pt-2 border-t border-white/10">
+                                        <span className="text-slate-500">Різниця:</span>
+                                        <span className="font-bold text-amber-400">{formatNumber(Math.abs(data.channel.subs - data.audit.avgViews))}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
