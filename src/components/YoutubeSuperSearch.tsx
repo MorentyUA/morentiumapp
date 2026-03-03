@@ -9,10 +9,10 @@ interface YoutubeSuperSearchProps {
 
 export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalApiKey }) => {
     const [query, setQuery] = useState('');
-    const [minSubs, setMinSubs] = useState<number>(0);
-    const [maxSubs, setMaxSubs] = useState<number>(10000);
-    const [minViews, setMinViews] = useState<number>(0);
-    const [maxViews, setMaxViews] = useState<number>(1000000000);
+    const [minSubs, setMinSubs] = useState<number | ''>(0);
+    const [maxSubs, setMaxSubs] = useState<number | ''>(10000);
+    const [minViews, setMinViews] = useState<number | ''>(0);
+    const [maxViews, setMaxViews] = useState<number | ''>(1000000000);
     const [region, setRegion] = useState<string>('');
     const [format, setFormat] = useState<'all' | 'video' | 'shorts' | 'stream'>('all');
 
@@ -59,7 +59,7 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
 
         try {
             const activeKey = customApiKey || globalApiKey;
-            const endpoint = `/api/youtube-super-search?query=${encodeURIComponent(query)}&minSubs=${minSubs}&maxSubs=${maxSubs}&minViews=${minViews}&maxViews=${maxViews}&region=${region}&format=${format}${activeKey ? `&key=${activeKey}` : ''}`;
+            const endpoint = `/api/youtube-super-search?query=${encodeURIComponent(query)}&minSubs=${minSubs || 0}&maxSubs=${maxSubs || 0}&minViews=${minViews || 0}&maxViews=${maxViews || 0}&region=${region}&format=${format}${activeKey ? `&key=${activeKey}` : ''}`;
             const response = await fetch(endpoint);
             const data = await response.json();
 
@@ -68,7 +68,7 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
             }
 
             if (!data.results || data.results.length === 0) {
-                setError(`Проскановано ${data.scannedTotal} найпопулярніших відео, але жоден канал не підпадає під фільтр від ${minSubs} до ${maxSubs} підписників.`);
+                setError(`Проскановано ${data.scannedTotal} найпопулярніших відео, але жоден канал не підпадає під фільтр від ${minSubs || 0} до ${maxSubs || 0} підписників.`);
             } else {
                 setResults(data.results);
                 setScannedTotal(data.scannedTotal);
@@ -170,13 +170,24 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
                             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center">
                                 <Users className="w-3 h-3 mr-1" /> Від (Підписників)
                             </label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={minSubs}
-                                onChange={(e) => setMinSubs(parseInt(e.target.value) || 0)}
-                                className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
-                            />
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={minSubs === '' ? '' : minSubs}
+                                    onChange={(e) => setMinSubs(e.target.value === '' ? '' : parseInt(e.target.value))}
+                                    className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 pl-3 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
+                                />
+                                {minSubs !== '' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMinSubs('')}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-white transition-colors"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <div className="flex items-center justify-center pt-5 hidden sm:flex">
                             <SlidersHorizontal className="w-4 h-4 text-slate-500" />
@@ -185,13 +196,24 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
                             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center">
                                 <Users className="w-3 h-3 mr-1" /> До (Підписників)
                             </label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={maxSubs}
-                                onChange={(e) => setMaxSubs(parseInt(e.target.value) || 0)}
-                                className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
-                            />
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={maxSubs === '' ? '' : maxSubs}
+                                    onChange={(e) => setMaxSubs(e.target.value === '' ? '' : parseInt(e.target.value))}
+                                    className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 pl-3 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
+                                />
+                                {maxSubs !== '' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMaxSubs('')}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-white transition-colors"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
 
@@ -200,13 +222,24 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
                             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center">
                                 <Eye className="w-3 h-3 mr-1" /> Від (Переглядів)
                             </label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={minViews}
-                                onChange={(e) => setMinViews(parseInt(e.target.value) || 0)}
-                                className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
-                            />
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={minViews === '' ? '' : minViews}
+                                    onChange={(e) => setMinViews(e.target.value === '' ? '' : parseInt(e.target.value))}
+                                    className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 pl-3 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
+                                />
+                                {minViews !== '' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMinViews('')}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-white transition-colors"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         <div className="flex items-center justify-center pt-5 hidden sm:flex">
                             <SlidersHorizontal className="w-4 h-4 text-slate-500" />
@@ -215,13 +248,24 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalAp
                             <label className="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center">
                                 <Eye className="w-3 h-3 mr-1" /> До (Переглядів)
                             </label>
-                            <input
-                                type="number"
-                                min="0"
-                                value={maxViews}
-                                onChange={(e) => setMaxViews(parseInt(e.target.value) || 0)}
-                                className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
-                            />
+                            <div className="relative">
+                                <input
+                                    type="number"
+                                    min="0"
+                                    value={maxViews === '' ? '' : maxViews}
+                                    onChange={(e) => setMaxViews(e.target.value === '' ? '' : parseInt(e.target.value))}
+                                    className="w-full bg-slate-800/50 border border-white/10 rounded-xl py-2 pl-3 pr-8 text-white focus:outline-none focus:ring-2 focus:ring-cyan-500 transition-all text-sm"
+                                />
+                                {maxViews !== '' && (
+                                    <button
+                                        type="button"
+                                        onClick={() => setMaxViews('')}
+                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-white transition-colors"
+                                    >
+                                        <X className="w-3 h-3" />
+                                    </button>
+                                )}
+                            </div>
                         </div>
                     </div>
 

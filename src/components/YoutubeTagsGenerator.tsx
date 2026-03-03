@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, Key, Tag, Copy, AlertCircle, Save, X, Hash, TrendingUp, Eye, Settings } from 'lucide-react';
+import { Search, Loader2, Key, Tag, Copy, AlertCircle, Save, X, Hash, TrendingUp, Eye, Settings, Play } from 'lucide-react';
 
 interface TagData {
     tag: string;
@@ -127,7 +127,7 @@ export const YoutubeTagsGenerator: React.FC<Props> = ({ globalApiKey }) => {
                         <button
                             type="button"
                             onClick={() => setQuery('')}
-                            className="absolute right-[7rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
+                            className="absolute right-[4.5rem] top-1/2 -translate-y-1/2 p-1.5 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-full text-slate-400 hover:text-white transition-colors z-10"
                         >
                             <X className="w-3 h-3" />
                         </button>
@@ -135,9 +135,10 @@ export const YoutubeTagsGenerator: React.FC<Props> = ({ globalApiKey }) => {
                     <button
                         type="submit"
                         disabled={isLoading || !query.trim()}
-                        className="absolute right-2 top-2 bottom-2 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-bold py-2 px-6 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center uppercase tracking-wider text-xs sm:text-sm"
+                        className="absolute right-2 top-2 bottom-2 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white font-bold px-4 rounded-xl transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                        title="Згенерувати"
                     >
-                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Генерувати'}
+                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-current" />}
                     </button>
                 </form>
 
