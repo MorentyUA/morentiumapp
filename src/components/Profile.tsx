@@ -4,6 +4,7 @@ import { useProgress } from '../hooks/useProgress';
 import { useStreak } from '../hooks/useStreak';
 import { ShieldCheck, User as UserIcon, Award, Star, BookOpen, Target, Flame, Play } from 'lucide-react';
 import { useGame } from '../hooks/useGame';
+import { formatScoreDisplay } from '../utils/format';
 import { motion } from 'framer-motion';
 import type { Item } from '../types';
 
@@ -28,12 +29,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
         return () => window.removeEventListener('game_state_updated', handleGameUpdate);
     }, []);
 
-    const formatScore = (s: number) => {
-        if (s >= 1000000) {
-            return `${Math.floor(s / 1000000)}M ${(s % 1000000).toString().padStart(6, '0').slice(0, 3)} ${(s % 1000000).toString().padStart(6, '0').slice(3)}`;
-        }
-        return s.toLocaleString('uk-UA');
-    };
+
 
     // Progress Bar Math
     const totalItems = items.length;
@@ -213,7 +209,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                                 letterSpacing: '0.05em'
                             }}
                         >
-                            {formatScore(score)}
+                            {formatScoreDisplay(score)}
                         </p>
                     </div>
                 </div>

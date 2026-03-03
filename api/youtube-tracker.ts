@@ -54,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             const searchData = await searchRes.json();
 
             if (!searchData.items || searchData.items.length === 0) {
-                return res.status(404).json({ error: 'Channel not found from search query' });
+                return res.status(404).json({ error: 'Канал не знайдено за цим запитом' });
             }
             channelId = searchData.items[0].snippet.channelId;
         }

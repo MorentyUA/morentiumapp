@@ -4,6 +4,7 @@ import { Trophy, Zap, Play, Store, Coins, Battery, Gift, ArrowUpCircle, Sparkles
 import { useTelegram } from '../hooks/useTelegram';
 import { useGame, DEFAULT_MAX_ENERGY, DEFAULT_MULTIPLIER } from '../hooks/useGame';
 import { Leaderboard } from './Leaderboard';
+import { formatScoreDisplay } from '../utils/format';
 
 interface FloatingText {
     id: number;
@@ -154,9 +155,7 @@ export const GameView: React.FC = () => {
                                 letterSpacing: '0.05em'
                             }}
                         >
-                            {score >= 1000000
-                                ? `${Math.floor(score / 1000000)}M ${(score % 1000000).toString().padStart(6, '0').slice(0, 3)} ${(score % 1000000).toString().padStart(6, '0').slice(3)}`
-                                : score.toLocaleString('uk-UA')}
+                            {formatScoreDisplay(score)}
                         </span>
                     </div>
                     <div className="flex items-center space-x-1.5 px-4 py-1.5 bg-amber-500/20 rounded-full border border-amber-500/30">
@@ -183,7 +182,7 @@ export const GameView: React.FC = () => {
                                 transition={{ ease: "easeOut", duration: 0.3 }}
                             />
                         </div>
-                        <span className="text-xs text-slate-500">Наступна: {nextLevel.name} ({nextLevel.threshold.toLocaleString('uk-UA')})</span>
+                        <span className="text-xs text-slate-500">Наступна: {nextLevel.name} ({formatScoreDisplay(nextLevel.threshold)})</span>
                     </div>
                 )}
             </div>
@@ -498,7 +497,7 @@ export const GameView: React.FC = () => {
                             {crateReward.type === 'score' && (
                                 <>
                                     <Trophy className="w-16 h-16 text-yellow-400 mb-4 drop-shadow-lg" />
-                                    <span className="text-5xl font-black text-yellow-500">+{crateReward.amount.toLocaleString('uk-UA')}</span>
+                                    <span className="text-5xl font-black text-yellow-500">+{formatScoreDisplay(crateReward.amount)}</span>
                                     <span className="text-yellow-500/80 font-bold tracking-widest uppercase mt-2">Очок</span>
                                 </>
                             )}
@@ -707,7 +706,7 @@ export const GameView: React.FC = () => {
                         <div className="bg-slate-800/80 border border-white/10 rounded-3xl p-6 w-full max-w-sm mb-8 flex flex-col items-center shadow-2xl">
                             <div className="flex flex-col items-center justify-center gap-4 w-full">
                                 <div className="flex flex-col items-center bg-white/5 w-full py-3 rounded-xl border border-white/5">
-                                    <span className="text-3xl font-black text-white tracking-widest">+{offlineEarnings.score.toLocaleString('uk-UA')}</span>
+                                    <span className="text-3xl font-black text-white tracking-widest">+{formatScoreDisplay(offlineEarnings.score)}</span>
                                     <span className="text-xs text-slate-400 font-bold uppercase tracking-wider flex items-center mt-1"><Trophy className="w-3 h-3 text-yellow-500 mr-1" /> Очки</span>
                                 </div>
                                 {offlineEarnings.coins > 0 && (

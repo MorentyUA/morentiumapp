@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Trophy, X, Medal, Play } from 'lucide-react';
 import type { LeaderboardEntry } from '../../api/game-sync';
 import { useTelegram } from '../hooks/useTelegram';
+import { formatScoreDisplay } from '../utils/format';
 
 interface LeaderboardProps {
     isOpen: boolean;
@@ -43,13 +44,6 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose, curre
             case 2: return <Medal className="w-5 h-5 text-amber-600 drop-shadow-[0_0_8px_rgba(217,119,6,0.8)]" />;
             default: return <span className="font-bold text-slate-500 w-5 text-center">{index + 1}</span>;
         }
-    };
-
-    const formatScore = (s: number) => {
-        if (s >= 1000000) {
-            return `${Math.floor(s / 1000000)}M ${(s % 1000000).toString().padStart(6, '0').slice(0, 3)} ${(s % 1000000).toString().padStart(6, '0').slice(3)}`;
-        }
-        return s.toLocaleString('uk-UA');
     };
 
     return (
@@ -120,7 +114,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose, curre
 
                                             <div className="text-right">
                                                 <span className={`font-black ${isMe ? 'text-yellow-400' : 'text-white'}`}>
-                                                    {formatScore(leader.score)}
+                                                    {formatScoreDisplay(leader.score)}
                                                 </span>
                                             </div>
                                         </div>
@@ -132,7 +126,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ isOpen, onClose, curre
                         {/* Footer Personal Stats */}
                         <div className="p-4 bg-slate-900 border-t border-white/5 flex justify-between items-center shrink-0">
                             <span className="text-slate-400 text-sm font-medium">Ваш рекорд:</span>
-                            <span className="text-white font-black text-lg">{formatScore(currentScore)}</span>
+                            <span className="text-white font-black text-lg">{formatScoreDisplay(currentScore)}</span>
                         </div>
                     </motion.div>
                 </motion.div>

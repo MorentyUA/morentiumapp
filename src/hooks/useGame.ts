@@ -69,7 +69,6 @@ export const useGame = () => {
 
     // Upgrades
     const [maxEnergy, setMaxEnergy] = useState(DEFAULT_MAX_ENERGY);
-    const [energyRegenRate, setEnergyRegenRate] = useState(DEFAULT_REGEN_RATE);
     const [clickMultiplier, setClickMultiplier] = useState(DEFAULT_MULTIPLIER);
 
     // Phase 24 Gamification States
@@ -87,6 +86,7 @@ export const useGame = () => {
     const [lastQuestResetTime, setLastQuestResetTime] = useState(Date.now());
 
     const lastSyncedScore = useRef(0);
+    const lastTapTimeRef = useRef(0);
 
     // Initialize from LocalStorage
     useEffect(() => {
@@ -100,8 +100,6 @@ export const useGame = () => {
                 // Load Upgrades
                 const savedMaxEnergy = parsed.maxEnergy || DEFAULT_MAX_ENERGY;
                 setMaxEnergy(savedMaxEnergy);
-                const savedRegenRate = parsed.energyRegenRate || DEFAULT_REGEN_RATE;
-                setEnergyRegenRate(savedRegenRate);
                 setClickMultiplier(parsed.clickMultiplier || DEFAULT_MULTIPLIER);
                 setLastSuperModeTime(parsed.lastSuperModeTime || 0);
 
@@ -162,7 +160,7 @@ export const useGame = () => {
                     }
                 }
 
-                const regeneratedEnergy = passedSeconds * savedRegenRate;
+                const regeneratedEnergy = passedSeconds * DEFAULT_REGEN_RATE;
 
                 // Cap at MAX_ENERGY
                 const newEnergy = Math.min((parsed.energy ?? savedMaxEnergy) + regeneratedEnergy, savedMaxEnergy);
@@ -178,15 +176,17 @@ export const useGame = () => {
     // Passive Energy Regeneration Tick (Every 1 Second)
     useEffect(() => {
         const interval = setInterval(() => {
+            if (Date.now() - lastTapTimeRef.current < 2000) return;
+
             setEnergy(prev => {
                 if (prev >= maxEnergy) return prev;
-                return Math.min(prev + energyRegenRate, maxEnergy);
+                return Math.min(prev + DEFAULT_REGEN_RATE, maxEnergy);
             });
             setLastUpdate(Date.now());
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [maxEnergy, energyRegenRate]);
+    }, [maxEnergy]);
 
     // Save to LocalStorage whenever critical values change
     useEffect(() => {
@@ -196,7 +196,6 @@ export const useGame = () => {
                 coins,
                 energy,
                 maxEnergy,
-                energyRegenRate,
                 clickMultiplier,
                 lastUpdate,
                 hasClaimedDailyCrate,
@@ -213,7 +212,7 @@ export const useGame = () => {
         } catch (e) {
             console.error("Failed to save game state", e);
         }
-    }, [score, coins, energy, maxEnergy, energyRegenRate, clickMultiplier, lastUpdate, hasClaimedDailyCrate, lastBoostResetDate, lastSuperModeTime, loginStreak, dailyQuestsProgress, dailyQuestsClaimed, lastQuestResetTime]);
+    }, [score, coins, energy, maxEnergy, clickMultiplier, lastUpdate, hasClaimedDailyCrate, lastBoostResetDate, lastSuperModeTime, loginStreak, dailyQuestsProgress, dailyQuestsClaimed, lastQuestResetTime]);
 
     // Calculate Current Level
     const currentLevel = LEVELS.slice().reverse().find(lvl => score >= lvl.threshold) || LEVELS[0];
@@ -251,6 +250,7 @@ export const useGame = () => {
     }, [score, forceSync]);
 
     const handleTap = useCallback((baseCount = 1) => {
+        lastTapTimeRef.current = Date.now();
         let totalBaseCount = baseCount * clickMultiplier;
 
         // Add flat +10 multiplier if super mode is active
@@ -397,8 +397,6 @@ export const useGame = () => {
         energy,
         maxEnergy,
         setMaxEnergy,
-        energyRegenRate,
-        setEnergyRegenRate,
         clickMultiplier,
         setClickMultiplier,
         currentLevel,
