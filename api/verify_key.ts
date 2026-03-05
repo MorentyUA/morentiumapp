@@ -19,11 +19,14 @@ export default async function handler(req: any, res: any) {
         return res.status(405).json({ error: 'Method not allowed. Use POST.' });
     }
 
-    const { key, hwid, userId } = req.body;
+    const { key, hwid } = req.body;
 
     if (!key || !hwid) {
         return res.status(400).json({ error: 'Missing key or hwid parameter' });
     }
+
+    const BOT_TOKEN = process.env.BOT_TOKEN;
+    const PRIVATE_GROUP_ID = process.env.PRIVATE_GROUP_ID || process.env.GROUP_ID || '-1003699693654';
 
     try {
         // 1. Check if key exists in Blob
@@ -59,11 +62,27 @@ export default async function handler(req: any, res: any) {
             if (keyData.hwid !== hwid) {
                 return res.status(403).json({ error: 'Цей ключ вже активовано на іншому комп\'ютері. Відмовлено у доступі.', valid: false });
             } else {
-                // HWID matches, welcome back.
+                // 3. Telegram Group Membership Check
+                // If the key and HWID match, we still need to verify they haven't left the group.
+                if (BOT_TOKEN && keyData.userId) {
+                    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${PRIVATE_GROUP_ID}&user_id=${keyData.userId}`);
+                    const tData = await response.json();
+
+                    let isSubscribed = false;
+                    if (tData.ok) {
+                        const status = tData.result.status;
+                        isSubscribed = ['member', 'administrator', 'creator', 'restricted'].includes(status);
+                    }
+
+                    if (!isSubscribed) {
+                        return res.status(403).json({ error: 'Ви покинули закриту групу. Доступ до MOR VOICE призупинено.', valid: false });
+                    }
+                }
+
+                // Return Welcome Back if everything is fine
                 return res.status(200).json({ valid: true, message: 'Доступ дозволено.', status: 'active' });
             }
         }
-
     } catch (error: any) {
         console.error("Error verifying key:", error);
         return res.status(500).json({ error: 'Internal Server Error', details: error.message || error.toString(), valid: false });
