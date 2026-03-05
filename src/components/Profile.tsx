@@ -7,6 +7,7 @@ import { useGame } from '../hooks/useGame';
 import { formatScoreDisplay } from '../utils/format';
 import { motion } from 'framer-motion';
 import type { Item } from '../types';
+import { Copy, CheckCircle2 } from 'lucide-react';
 
 interface ProfileProps {
     isPublicSubscribed: boolean | null;
@@ -21,6 +22,12 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
     const { streak } = useStreak();
     const { score, currentLevel } = useGame();
 
+    // MOR VOICE Key Generation State
+    const [isGeneratingKey, setIsGeneratingKey] = useState(false);
+    const [morVoiceKey, setMorVoiceKey] = useState<string | null>(null);
+    const [keyError, setKeyError] = useState<string>('');
+    const [isCopied, setIsCopied] = useState(false);
+
     // Event listener for real-time game updates while Profile is open
     const [, forceRender] = useState({});
     useEffect(() => {
@@ -28,6 +35,37 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
         window.addEventListener('game_state_updated', handleGameUpdate);
         return () => window.removeEventListener('game_state_updated', handleGameUpdate);
     }, []);
+
+    const generateMorVoiceKey = async () => {
+        if (!user?.id) return;
+        setIsGeneratingKey(true);
+        setKeyError('');
+        try {
+            const res = await fetch('/api/generate_key', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ userId: user.id })
+            });
+            const data = await res.json();
+            if (data.key) {
+                setMorVoiceKey(data.key);
+            } else {
+                setKeyError(data.error || 'Помилка при створенні ключа');
+            }
+        } catch (e) {
+            setKeyError('Помилка з\'єднання. Спробуйте пізніше.');
+        } finally {
+            setIsGeneratingKey(false);
+        }
+    };
+
+    const copyKey = () => {
+        if (morVoiceKey) {
+            navigator.clipboard.writeText(morVoiceKey);
+            setIsCopied(true);
+            setTimeout(() => setIsCopied(false), 2000);
+        }
+    };
 
 
 
@@ -216,14 +254,14 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
             </div>
 
             {/* Subscribe Box for standard users */}
-            {!isPrivateSubscribed && !isAdmin && (
+            {!isPrivateSubscribed && !isAdmin ? (
                 <div className="glass-card p-6 border border-yellow-500/30 bg-gradient-to-b from-yellow-500/10 to-transparent relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Star className="w-24 h-24 text-yellow-500" />
                     </div>
                     <h3 className="text-xl font-bold text-yellow-500 mb-2">Станьте VIP учасником</h3>
                     <p className="text-sm text-slate-300 mb-6 max-w-sm relative z-10 leading-relaxed">
-                        Отримайте доступ до закритого контенту, секретних YouTube інструментів та прямих розборів вашого каналу.
+                        Отримайте доступ до закритого контенту, секретних YouTube інструментів, десктопної програми MOR VOICE та прямих розборів вашого каналу.
                     </p>
                     <button
                         onClick={() => tg.openTelegramLink(import.meta.env.VITE_INVITE_LINK || "https://t.me/morentube/183")}
@@ -231,6 +269,48 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                     >
                         Отримати VIP Доступ
                     </button>
+                </div>
+            ) : (
+                /* MOR VOICE Key Section for VIPs */
+                <div className="glass-card p-6 border border-blue-500/30 bg-gradient-to-b from-blue-500/10 to-transparent relative overflow-hidden group mt-4">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <ShieldCheck className="w-24 h-24 text-blue-500" />
+                    </div>
+                    <h3 className="text-xl font-bold text-blue-400 mb-2">Доступ до MOR VOICE</h3>
+                    <p className="text-sm text-slate-300 mb-6 relative z-10 leading-relaxed max-w-[90%]">
+                        Згенеруйте унікальний ключ для доступу до десктопної програми озвучення MOR VOICE.
+                        <br /><span className="text-xs text-slate-400">Цей ключ прив'яжеться до одного комп'ютера після активації.</span>
+                    </p>
+
+                    {morVoiceKey ? (
+                        <div className="bg-[#0f172a] border border-blue-500/30 p-4 rounded-xl relative z-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                            <code className="text-blue-300 font-mono text-lg tracking-wider font-bold select-all bg-blue-500/10 px-3 py-1.5 rounded-lg w-full sm:w-auto text-center">
+                                {morVoiceKey}
+                            </code>
+                            <button
+                                onClick={copyKey}
+                                className={`w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg font-bold transition-all ${isCopied ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-500/20'}`}
+                            >
+                                {isCopied ? <><CheckCircle2 className="w-4 h-4" /> Скопійовано!</> : <><Copy className="w-4 h-4" /> Копіювати</>}
+                            </button>
+                        </div>
+                    ) : (
+                        <button
+                            onClick={generateMorVoiceKey}
+                            disabled={isGeneratingKey}
+                            className="w-full relative z-10 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-blue-500/25 active:scale-95 uppercase tracking-wider text-sm disabled:opacity-50 disabled:active:scale-100 flex items-center justify-center gap-2"
+                        >
+                            {isGeneratingKey ? (
+                                <><div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div> Генеруємо...</>
+                            ) : 'Згенерувати ключ доступу'}
+                        </button>
+                    )}
+
+                    {keyError && (
+                        <p className="text-red-400 text-sm mt-3 relative z-10 bg-red-500/10 p-2 rounded border border-red-500/20 text-center">
+                            {keyError}
+                        </p>
+                    )}
                 </div>
             )}
         </motion.div>
