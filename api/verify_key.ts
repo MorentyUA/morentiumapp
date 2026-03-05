@@ -27,7 +27,10 @@ export default async function handler(req: any, res: any) {
 
     try {
         // 1. Check if key exists in Blob
-        const { blobs } = await list({ prefix: `morvoice/keys/${key}.json` });
+        const { blobs } = await list({
+            prefix: `morvoice/keys/${key}.json`,
+            token: process.env.morespace_READ_WRITE_TOKEN
+        });
 
         if (blobs.length === 0) {
             return res.status(404).json({ error: 'Ключ не знайдено або він недійсний.', valid: false });
@@ -46,7 +49,8 @@ export default async function handler(req: any, res: any) {
 
             await put(`morvoice/keys/${key}.json`, JSON.stringify(keyData), {
                 access: 'public',
-                addRandomSuffix: false
+                addRandomSuffix: false,
+                token: process.env.morespace_READ_WRITE_TOKEN
             });
             return res.status(200).json({ valid: true, message: 'Ключ успішно активовано на цьому пристрої!', status: 'newly_activated' });
         } else {

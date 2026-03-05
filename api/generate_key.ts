@@ -62,7 +62,8 @@ export default async function handler(req: any, res: any) {
 
     await put(`morvoice/keys/${newKey}.json`, JSON.stringify(keyData), {
       access: 'public',
-      addRandomSuffix: false
+      addRandomSuffix: false,
+      token: process.env.morespace_READ_WRITE_TOKEN
     });
 
     return res.status(200).json({ key: newKey });
