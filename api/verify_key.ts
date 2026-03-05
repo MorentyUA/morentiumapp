@@ -50,6 +50,7 @@ export default async function handler(req: any, res: any) {
             await put(`morvoice/keys/${key}.json`, JSON.stringify(keyData), {
                 access: 'public',
                 addRandomSuffix: false,
+                allowOverwrite: true,
                 token: process.env.morespace_READ_WRITE_TOKEN
             });
             return res.status(200).json({ valid: true, message: 'Ключ успішно активовано на цьому пристрої!', status: 'newly_activated' });
