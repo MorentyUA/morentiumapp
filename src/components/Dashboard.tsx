@@ -12,6 +12,7 @@ interface DashboardProps {
     hasUncompleted?: boolean;
     uncompletedCount?: number;
     onSelectCategory: (category: Category) => void;
+    onShowVIPPopup?: () => void;
 }
 
 const container = {
@@ -33,7 +34,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
     hasBookmarks,
     hasUncompleted,
     uncompletedCount,
-    onSelectCategory
+    onSelectCategory,
+    onShowVIPPopup
 }) => {
     const { streak } = useStreak();
 
@@ -70,7 +72,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <motion.div variants={item}>
                         <div
                             onClick={() => {
-                                if (!isPrivateSubscribed) return;
+                                if (!isPrivateSubscribed) {
+                                    onShowVIPPopup?.();
+                                    return;
+                                }
                                 onSelectCategory({
                                     id: 'bookmarks',
                                     title: 'Збережене',
@@ -122,7 +127,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     <motion.div variants={item}>
                         <div
                             onClick={() => {
-                                if (!isPrivateSubscribed) return;
+                                if (!isPrivateSubscribed) {
+                                    onShowVIPPopup?.();
+                                    return;
+                                }
                                 onSelectCategory({
                                     id: 'uncompleted',
                                     title: 'Ще не вивчено',

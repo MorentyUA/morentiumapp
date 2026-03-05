@@ -11,15 +11,25 @@ export default defineConfig({
     {
       name: 'local-admin-api',
       configureServer(server) {
-        server.middlewares.use('/api/save-data', (req, res) => {
+        server.middlewares.use('/api/save-data', (req, res, next) => {
           if (req.method === 'POST') {
             let body = '';
             req.on('data', chunk => { body += chunk.toString() });
             req.on('end', () => {
-              fs.writeFileSync(path.resolve(process.cwd(), 'src/data.json'), body);
-              res.statusCode = 200;
-              res.end(JSON.stringify({ success: true }));
+              try {
+                const targetPath = path.resolve(process.cwd(), 'src/data.json');
+                fs.writeFileSync(targetPath, body);
+                res.setHeader('Content-Type', 'application/json');
+                res.statusCode = 200;
+                res.end(JSON.stringify({ success: true }));
+              } catch (e: any) {
+                console.error("Vite API Error writing data.json:", e);
+                res.statusCode = 500;
+                res.end(JSON.stringify({ error: e.message || 'Server error' }));
+              }
             });
+          } else {
+            next();
           }
         });
       }

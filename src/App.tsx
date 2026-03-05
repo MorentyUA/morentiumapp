@@ -173,6 +173,7 @@ function App() {
                 }
                 setSelectedCategory(cat);
               }}
+              onShowVIPPopup={showVIPPopup}
             />
           ) : (
             <ContentView
