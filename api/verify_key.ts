@@ -63,8 +63,8 @@ export default async function handler(req: any, res: any) {
             }
         }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error verifying key:", error);
-        return res.status(500).json({ error: 'Internal Server Error', valid: false });
+        return res.status(500).json({ error: 'Internal Server Error', details: error.message || error.toString(), valid: false });
     }
 }

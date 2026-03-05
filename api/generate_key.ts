@@ -68,8 +68,8 @@ export default async function handler(req: any, res: any) {
 
     return res.status(200).json({ key: newKey });
 
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error generating key:", error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: 'Internal Server Error', details: error.message || error.toString() });
   }
 }
