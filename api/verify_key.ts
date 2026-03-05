@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { list, put } from '@vercel/blob';
 
 export default async function handler(req: any, res: any) {
     // CORS Headers
@@ -26,12 +26,16 @@ export default async function handler(req: any, res: any) {
     }
 
     try {
-        // 1. Check if key exists in KV
-        const keyData: any = await kv.get(`morvoice_key:${key}`);
+        // 1. Check if key exists in Blob
+        const { blobs } = await list({ prefix: `morvoice/keys/${key}.json` });
 
-        if (!keyData) {
+        if (blobs.length === 0) {
             return res.status(404).json({ error: 'Ключ не знайдено або він недійсний.', valid: false });
         }
+
+        const blobUrl = blobs[0].downloadUrl;
+        const keyResponse = await fetch(blobUrl);
+        const keyData = await keyResponse.json();
 
         // 2. HWID Verification Logic
         if (keyData.hwid === null) {
@@ -40,7 +44,10 @@ export default async function handler(req: any, res: any) {
             keyData.status = 'active';
             keyData.activatedAt = Date.now();
 
-            await kv.set(`morvoice_key:${key}`, keyData);
+            await put(`morvoice/keys/${key}.json`, JSON.stringify(keyData), {
+                access: 'public',
+                addRandomSuffix: false
+            });
             return res.status(200).json({ valid: true, message: 'Ключ успішно активовано на цьому пристрої!', status: 'newly_activated' });
         } else {
             // Key was already activated. Check if HWID matches.
@@ -48,9 +55,6 @@ export default async function handler(req: any, res: any) {
                 return res.status(403).json({ error: 'Цей ключ вже активовано на іншому комп\'ютері. Відмовлено у доступі.', valid: false });
             } else {
                 // HWID matches, welcome back.
-
-                // Optional: Re-verify Telegram Subscription every time they launch?
-                // (Depends on how strict you want to be. For now let's just allow if HWID matches).
                 return res.status(200).json({ valid: true, message: 'Доступ дозволено.', status: 'active' });
             }
         }

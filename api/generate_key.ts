@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { put } from '@vercel/blob';
 
 export default async function handler(req: any, res: any) {
   // CORS Headers
@@ -36,7 +36,7 @@ export default async function handler(req: any, res: any) {
     // 1. Check if user is actually in the group
     const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${PRIVATE_GROUP_ID}&user_id=${userId}`);
     const data = await response.json();
-    
+
     let isSubscribed = false;
     if (data.ok) {
       const status = data.result.status;
@@ -51,17 +51,19 @@ export default async function handler(req: any, res: any) {
     const generateSegment = () => Math.random().toString(36).substring(2, 6).toUpperCase();
     const newKey = `MOR-${generateSegment()}-${generateSegment()}-${generateSegment()}`;
 
-    // 3. Save to Vercel KV
-    // Store mapping: key -> { userId, status, hwid }
-    await kv.set(`morvoice_key:${newKey}`, {
+    // 3. Save to Vercel Blob (since KV is not set up)
+    // We save a small JSON file for the key
+    const keyData = {
       userId: userId,
-      status: 'pending_activation', // Will change to 'active' when first used on PC
+      status: 'pending_activation',
       hwid: null,
       createdAt: Date.now()
+    };
+
+    await put(`morvoice/keys/${newKey}.json`, JSON.stringify(keyData), {
+      access: 'public',
+      addRandomSuffix: false
     });
-    
-    // Also save a reference from the user to the key (so we know if they already have one)
-    await kv.set(`morvoice_user:${userId}`, newKey);
 
     return res.status(200).json({ key: newKey });
 
