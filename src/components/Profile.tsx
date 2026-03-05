@@ -50,7 +50,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
             if (data.key) {
                 setMorVoiceKey(data.key);
             } else {
-                setKeyError(data.error || 'Помилка при створенні ключа');
+                setKeyError(data.error + (data.details ? `: ${data.details}` : ''));
             }
         } catch (e) {
             setKeyError('Помилка з\'єднання. Спробуйте пізніше.');
