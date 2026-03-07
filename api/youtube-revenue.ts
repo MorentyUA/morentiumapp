@@ -28,7 +28,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(400).json({ error: 'Введіть посилання на канал або ID' });
     }
 
-    const apiKey = key || process.env.YOUTUBE_API_KEY;
+    const apiKey = key || process.env.YOUTUBE_API_KEY || "AIzaSyCyKZ9GPZqfALXnHfJRZZZ3qOQzHSX51c4";
     if (!apiKey) {
         return res.status(500).json({ error: 'YouTube API ключ відсутній' });
     }

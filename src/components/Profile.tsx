@@ -261,7 +261,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                     </div>
                     <h3 className="text-xl font-bold text-yellow-500 mb-2">Станьте VIP учасником</h3>
                     <p className="text-sm text-slate-300 mb-6 max-w-sm relative z-10 leading-relaxed">
-                        Отримайте доступ до закритого контенту, секретних YouTube інструментів, десктопної програми MOR VOICE та прямих розборів вашого каналу.
+                        Отримайте доступ до закритого контенту, секретних YouTube інструментів, десктопного софту створення контенту MOR CRAFT та прямих розборів вашого каналу.
                     </p>
                     <button
                         onClick={() => tg.openTelegramLink(import.meta.env.VITE_INVITE_LINK || "https://t.me/morentube/183")}
@@ -271,14 +271,14 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                     </button>
                 </div>
             ) : (
-                /* MOR VOICE Key Section for VIPs */
+                /* MOR CRAFT Key Section for VIPs */
                 <div className="glass-card p-6 border border-blue-500/30 bg-gradient-to-b from-blue-500/10 to-transparent relative overflow-hidden group mt-4">
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <ShieldCheck className="w-24 h-24 text-blue-500" />
                     </div>
-                    <h3 className="text-xl font-bold text-blue-400 mb-2">Доступ до MOR VOICE</h3>
+                    <h3 className="text-xl font-bold text-blue-400 mb-2">Доступ до MOR CRAFT</h3>
                     <p className="text-sm text-slate-300 mb-6 relative z-10 leading-relaxed max-w-[90%]">
-                        Згенеруйте унікальний ключ для доступу до десктопної програми озвучення MOR VOICE.
+                        Згенеруйте унікальний ключ для доступу до десктопного софту створення контенту MOR CRAFT.
                         <br /><span className="text-xs text-slate-400">Цей ключ прив'яжеться до одного комп'ютера після активації.</span>
                     </p>
 

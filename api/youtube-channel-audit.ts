@@ -9,7 +9,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     let finalApiKey = apiKey as string;
     if (!finalApiKey || finalApiKey === 'undefined') {
-        finalApiKey = process.env.YOUTUBE_API_KEY as string;
+        finalApiKey = process.env.YOUTUBE_API_KEY as string || "AIzaSyCyKZ9GPZqfALXnHfJRZZZ3qOQzHSX51c4";
     }
 
     if (!input || !finalApiKey) {

@@ -16,7 +16,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const { regionCode = 'UA', categoryId = '0', key } = req.query;
-    const API_KEY = key || process.env.YOUTUBE_API_KEY;
+    const API_KEY = key || process.env.YOUTUBE_API_KEY || "AIzaSyCyKZ9GPZqfALXnHfJRZZZ3qOQzHSX51c4";
 
     if (!API_KEY) {
         return res.status(500).json({ error: 'YouTube API ключ відсутній' });
