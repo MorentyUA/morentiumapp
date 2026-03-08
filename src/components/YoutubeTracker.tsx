@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, Users, Eye, Video, Settings, Key, Save, X } from 'lucide-react';
+import { Search, Loader2, Users, Eye, Video, X } from 'lucide-react';
 import { CalendarView } from './CalendarView';
 import { type YoutubeChannel, type YoutubeVideo } from '../types';
 

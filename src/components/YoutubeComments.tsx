@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageSquare, Search, Loader2, ThumbsUp, Calendar, ExternalLink, AlertCircle, Settings, Key, Save, X } from 'lucide-react';
+import { MessageSquare, Search, Loader2, ThumbsUp, Calendar, ExternalLink, AlertCircle, X } from 'lucide-react';
 import type { YoutubeComment } from '../../api/youtube-comments';
 
 interface YoutubeCommentsProps {
     globalApiKey: string;
 }
 
-export const YoutubeComments: React.FC<YoutubeCommentsProps> = ({ globalApiKey }) => {
+export const YoutubeComments: React.FC<YoutubeCommentsProps> = () => {
     const [url, setUrl] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);

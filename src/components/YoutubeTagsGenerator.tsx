@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, Key, Tag, Copy, AlertCircle, Save, X, Hash, TrendingUp, Eye, Settings, Play } from 'lucide-react';
+import { Search, Loader2, Tag, Copy, AlertCircle, X, Hash, TrendingUp, Eye, Play } from 'lucide-react';
 
 interface TagData {
     tag: string;
@@ -22,7 +22,7 @@ interface Props {
     globalApiKey: string;
 }
 
-export const YoutubeTagsGenerator: React.FC<Props> = ({ globalApiKey }) => {
+export const YoutubeTagsGenerator: React.FC<Props> = () => {
     const [query, setQuery] = useState('');
 
     const [isLoading, setIsLoading] = useState(false);

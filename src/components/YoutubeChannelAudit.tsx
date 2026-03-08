@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, Key, AlertCircle, Save, X, Activity, Award, TrendingUp, Users, Video, Settings } from 'lucide-react';
+import { Search, Loader2, AlertCircle, X, Activity, Award, TrendingUp, Users, Video } from 'lucide-react';
 
 interface Anomaly {
     id: string;
@@ -33,7 +33,7 @@ interface Props {
     globalApiKey: string;
 }
 
-export const YoutubeChannelAudit: React.FC<Props> = ({ globalApiKey }) => {
+export const YoutubeChannelAudit: React.FC<Props> = () => {
     const [query, setQuery] = useState('');
 
     const [isLoading, setIsLoading] = useState(false);

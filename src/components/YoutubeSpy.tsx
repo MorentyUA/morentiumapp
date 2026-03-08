@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, ThumbsUp, MessageSquare, Eye, Key, Settings, Tag, TrendingUp, AlertCircle, Save, X } from 'lucide-react';
+import { Search, Loader2, ThumbsUp, MessageSquare, Eye, Tag, TrendingUp, AlertCircle, X } from 'lucide-react';
 
 interface SpyStats {
     viewCount: number;

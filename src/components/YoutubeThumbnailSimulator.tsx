@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, Key, Image as ImageIcon, Upload, X, Save, AlertCircle, LayoutGrid, Monitor, Smartphone, CheckCircle, Settings } from 'lucide-react';
+import { Search, Loader2, Image as ImageIcon, Upload, X, AlertCircle, LayoutGrid, Monitor, Smartphone, CheckCircle } from 'lucide-react';
 
 interface MockVideo {
     id: string;
@@ -15,7 +15,7 @@ interface Props {
     globalApiKey: string;
 }
 
-export const YoutubeThumbnailSimulator: React.FC<Props> = ({ globalApiKey }) => {
+export const YoutubeThumbnailSimulator: React.FC<Props> = () => {
     // Inputs
     const [nicheQuery, setNicheQuery] = useState('');
     const [customTitle, setCustomTitle] = useState('');

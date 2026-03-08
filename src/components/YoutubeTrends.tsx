@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Flame, Loader2, Globe, LayoutGrid, Eye, Calendar, ExternalLink, AlertCircle, Settings, Key, Save, X } from 'lucide-react';
+import { Flame, Loader2, Globe, LayoutGrid, Eye, Calendar, ExternalLink, AlertCircle } from 'lucide-react';
 import type { TrendingVideo } from '../../api/youtube-trends';
 
 interface YoutubeTrendsProps {
@@ -25,7 +25,7 @@ const CATEGORIES = [
     { id: '17', name: '⚽ Спорт' }
 ];
 
-export const YoutubeTrends: React.FC<YoutubeTrendsProps> = ({ globalApiKey }) => {
+export const YoutubeTrends: React.FC<YoutubeTrendsProps> = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [trends, setTrends] = useState<TrendingVideo[] | null>(null);

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, DollarSign, ExternalLink, AlertCircle, Link as LinkIcon, Info, Settings, Save, Key, X, TrendingUp, Presentation } from 'lucide-react';
+import { Search, Loader2, DollarSign, ExternalLink, AlertCircle, Link as LinkIcon, Info, X, TrendingUp, Presentation } from 'lucide-react';
 
 export const YoutubeRevenue: React.FC = () => {
     const [url, setUrl] = useState('');

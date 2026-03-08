@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Loader2, Diamond, Users, Calendar, ExternalLink, AlertCircle, SlidersHorizontal, Eye, Video, PlaySquare, Radio, Settings, Key, Save, X } from 'lucide-react';
+import { Search, Loader2, Diamond, Users, Calendar, ExternalLink, AlertCircle, SlidersHorizontal, Eye, Video, PlaySquare, Radio, X } from 'lucide-react';
 import type { SuperSearchVideo } from '../../api/youtube-super-search';
 
 interface YoutubeSuperSearchProps {
     globalApiKey: string;
 }
 
-export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = ({ globalApiKey }) => {
+export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = () => {
     const [query, setQuery] = useState('');
     const [minSubs, setMinSubs] = useState<number | ''>(0);
     const [maxSubs, setMaxSubs] = useState<number | ''>(10000);
