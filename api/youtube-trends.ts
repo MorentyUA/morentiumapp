@@ -1,5 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+import { fetchWithRotation } from './youtube-fetcher';
+const fetch = fetchWithRotation;
+
+
 export interface TrendingVideo {
     id: string;
     title: string;

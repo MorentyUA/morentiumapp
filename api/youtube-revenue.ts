@@ -1,5 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
+import { fetchWithRotation } from './youtube-fetcher';
+const fetch = fetchWithRotation;
+
+
 // Constants for Revenue Estimation
 // Per 1,000 views
 const SHORTS_RPM_MIN = 0.02;
