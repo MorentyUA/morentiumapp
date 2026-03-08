@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-import { fetchWithRotation } from './youtube-fetcher';
+import { fetchWithRotation } from './youtube-fetcher.js';
 const fetch = fetchWithRotation;
 
 
