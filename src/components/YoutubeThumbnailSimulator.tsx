@@ -23,8 +23,7 @@ export const YoutubeThumbnailSimulator: React.FC<Props> = ({ globalApiKey }) => 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     // API & State
-    const [apiKey, setApiKey] = useState(() => localStorage.getItem('youtube_api_key') || '');
-    const [isApiModalOpen, setIsApiModalOpen] = useState(false);
+
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
     const [videos, setVideos] = useState<MockVideo[]>([]);
@@ -56,8 +55,7 @@ export const YoutubeThumbnailSimulator: React.FC<Props> = ({ globalApiKey }) => 
         setVideos([]);
 
         try {
-            const activeKey = apiKey || globalApiKey;
-            const url = `/api/youtube-thumbnails?query=${encodeURIComponent(nicheQuery)}${activeKey ? `&apiKey=${activeKey}` : ''}&maxResults=7`;
+            const url = `/api/youtube-thumbnails?query=${encodeURIComponent(nicheQuery)}&maxResults=7`;
             const res = await fetch(url);
             const resData = await res.json();
 
@@ -95,14 +93,7 @@ export const YoutubeThumbnailSimulator: React.FC<Props> = ({ globalApiKey }) => 
         }
     };
 
-    const handleSaveKey = () => {
-        if (apiKey.trim()) {
-            localStorage.setItem('youtube_api_key', apiKey.trim());
-        } else {
-            localStorage.removeItem('youtube_api_key');
-        }
-        setIsApiModalOpen(false);
-    };
+
 
     const formatTimeAgo = (dateString: string) => {
         if (!dateString) return '1 тиж. тому';
@@ -136,12 +127,7 @@ export const YoutubeThumbnailSimulator: React.FC<Props> = ({ globalApiKey }) => 
                         <p className="text-sm text-slate-400 font-medium">A/B тест клікабельності в реальному оточенні</p>
                     </div>
 
-                    <button
-                        onClick={() => setIsApiModalOpen(true)}
-                        className="absolute right-0 p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                    >
-                        <Settings className="w-6 h-6" />
-                    </button>
+
                 </div>
 
                 <form onSubmit={handleSimulate} className="space-y-4">
@@ -345,71 +331,7 @@ export const YoutubeThumbnailSimulator: React.FC<Props> = ({ globalApiKey }) => 
                 )}
             </AnimatePresence>
 
-            {/* API Key Modal Component */}
-            <AnimatePresence>
-                {isApiModalOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-slate-800 border border-white/10 rounded-3xl p-6 w-full max-w-md shadow-2xl"
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold text-white flex items-center">
-                                    <Key className="w-5 h-5 mr-2 text-indigo-400" />
-                                    Налаштування API
-                                </h3>
-                                <button
-                                    onClick={() => setIsApiModalOpen(false)}
-                                    className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
 
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-300">Власний Google Cloud API Key</label>
-                                    <input
-                                        type="text"
-                                        value={apiKey}
-                                        onChange={(e) => setApiKey(e.target.value)}
-                                        placeholder="AIzaSy..."
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono text-sm"
-                                    />
-                                    <div className="flex justify-between items-start mt-2 space-x-2">
-                                        <p className="text-xs text-slate-500 flex-1">
-                                            Залиште пустим, щоб використовувати загальний ключ з адмін-панелі. Власний ключ дозволяє обходити ліміти системи.
-                                        </p>
-                                        <a
-                                            href="https://developers.google.com/youtube/v3/getting-started"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-[10px] sm:text-xs font-bold text-white bg-indigo-500/20 hover:bg-indigo-500/40 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                                        >
-                                            Як отримати ключ?
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={handleSaveKey}
-                                    className="w-full flex items-center justify-center space-x-2 bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-xl transition-colors font-medium mt-4"
-                                >
-                                    <Save className="w-4 h-4" />
-                                    <span>Зберегти налаштування</span>
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
 
         </motion.div>
     );

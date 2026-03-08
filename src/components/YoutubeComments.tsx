@@ -14,23 +14,7 @@ export const YoutubeComments: React.FC<YoutubeCommentsProps> = ({ globalApiKey }
     const [comments, setComments] = useState<YoutubeComment[] | null>(null);
     const [videoId, setVideoId] = useState<string | null>(null);
 
-    // Custom API Key Logic
-    const [isApiModalOpen, setIsApiModalOpen] = useState(false);
-    const [customApiKey, setCustomApiKey] = useState('');
 
-    useEffect(() => {
-        const storedKey = localStorage.getItem('youtube_api_key');
-        if (storedKey) setCustomApiKey(storedKey);
-    }, []);
-
-    const handleSaveApiKey = () => {
-        if (customApiKey.trim()) {
-            localStorage.setItem('youtube_api_key', customApiKey.trim());
-        } else {
-            localStorage.removeItem('youtube_api_key');
-        }
-        setIsApiModalOpen(false);
-    };
 
     const handleSearch = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -46,8 +30,7 @@ export const YoutubeComments: React.FC<YoutubeCommentsProps> = ({ globalApiKey }
         setVideoId(null);
 
         try {
-            const activeKey = customApiKey || globalApiKey;
-            const endpoint = `/api/youtube-comments?q=${encodeURIComponent(url)}${activeKey ? `&key=${activeKey}` : ''}`;
+            const endpoint = `/api/youtube-comments?q=${encodeURIComponent(url)}`;
             const response = await fetch(endpoint);
             const data = await response.json();
 
@@ -88,12 +71,7 @@ export const YoutubeComments: React.FC<YoutubeCommentsProps> = ({ globalApiKey }
                         </h2>
                         <p className="text-sm text-slate-400 mt-1">Парсинг популярних коментарів</p>
                     </div>
-                    <button
-                        onClick={() => setIsApiModalOpen(true)}
-                        className="absolute right-0 p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                    >
-                        <Settings className="w-6 h-6" />
-                    </button>
+
                 </div>
 
                 <form onSubmit={handleSearch} className="flex space-x-2">
@@ -205,71 +183,7 @@ export const YoutubeComments: React.FC<YoutubeCommentsProps> = ({ globalApiKey }
                 )}
             </AnimatePresence>
 
-            {/* API Key Modal */}
-            <AnimatePresence>
-                {isApiModalOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-slate-800 border border-white/10 rounded-3xl p-6 w-full max-w-md shadow-2xl"
-                        >
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-xl font-bold text-white flex items-center">
-                                    <Key className="w-5 h-5 mr-2 text-indigo-400" />
-                                    Налаштування API
-                                </h3>
-                                <button
-                                    onClick={() => setIsApiModalOpen(false)}
-                                    className="p-2 hover:bg-white/10 rounded-xl transition-colors text-slate-400 hover:text-white"
-                                >
-                                    <X className="w-5 h-5" />
-                                </button>
-                            </div>
 
-                            <div className="space-y-4">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium text-slate-300">Власний Google Cloud API Key</label>
-                                    <input
-                                        type="text"
-                                        value={customApiKey}
-                                        onChange={(e) => setCustomApiKey(e.target.value)}
-                                        placeholder="AIzaSy..."
-                                        className="w-full bg-slate-900/50 border border-white/10 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono text-sm"
-                                    />
-                                    <div className="flex justify-between items-start mt-2 space-x-2">
-                                        <p className="text-xs text-slate-500 flex-1">
-                                            Залиште пустим, щоб використовувати загальний ключ з адмін-панелі. Власний ключ дозволяє обходити ліміти системи.
-                                        </p>
-                                        <a
-                                            href="https://developers.google.com/youtube/v3/getting-started"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="text-[10px] sm:text-xs font-bold text-white bg-indigo-500/20 hover:bg-indigo-500/40 border border-indigo-500/30 px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
-                                        >
-                                            Як отримати ключ?
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <button
-                                    onClick={handleSaveApiKey}
-                                    className="w-full flex items-center justify-center space-x-2 bg-indigo-500 hover:bg-indigo-600 text-white py-3 rounded-xl transition-colors font-medium"
-                                >
-                                    <Save className="w-4 h-4" />
-                                    <span>Зберегти налаштування</span>
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
     );
 };

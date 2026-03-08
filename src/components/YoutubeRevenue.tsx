@@ -23,23 +23,7 @@ export const YoutubeRevenue: React.FC = () => {
         config: any;
     } | null>(null);
 
-    // API Key State
-    const [isApiModalOpen, setIsApiModalOpen] = useState(false);
-    const [customApiKey, setCustomApiKey] = useState('');
 
-    React.useEffect(() => {
-        const storedKey = localStorage.getItem('youtube_api_key');
-        if (storedKey) setCustomApiKey(storedKey);
-    }, []);
-
-    const handleSaveApiKey = () => {
-        if (customApiKey.trim()) {
-            localStorage.setItem('youtube_api_key', customApiKey.trim());
-        } else {
-            localStorage.removeItem('youtube_api_key');
-        }
-        setIsApiModalOpen(false);
-    };
 
     const handleCheck = async (e?: React.FormEvent) => {
         if (e) e.preventDefault();
@@ -54,8 +38,7 @@ export const YoutubeRevenue: React.FC = () => {
         setResult(null);
 
         try {
-            const apiKeyParam = customApiKey ? `&key=${customApiKey}` : '';
-            const endpoint = `/api/youtube-revenue?channel=${encodeURIComponent(url.trim())}${apiKeyParam}`;
+            const endpoint = `/api/youtube-revenue?channel=${encodeURIComponent(url.trim())}`;
             const response = await fetch(endpoint);
             const data = await response.json();
 
@@ -95,12 +78,7 @@ export const YoutubeRevenue: React.FC = () => {
                         </h2>
                         <p className="text-sm text-slate-400 mt-1">Оцінка можливого заробітку каналу</p>
                     </div>
-                    <button
-                        onClick={() => setIsApiModalOpen(true)}
-                        className="absolute right-0 p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition-colors"
-                    >
-                        <Settings className="w-6 h-6" />
-                    </button>
+
                 </div>
 
                 <form onSubmit={handleCheck} className="space-y-4">
@@ -250,72 +228,7 @@ export const YoutubeRevenue: React.FC = () => {
                 )}
             </AnimatePresence>
 
-            {/* API Key Modal */}
-            <AnimatePresence>
-                {isApiModalOpen && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0.95, opacity: 0 }}
-                            className="bg-slate-800 border border-white/10 p-6 rounded-3xl shadow-2xl w-full max-w-md relative"
-                        >
-                            <button
-                                onClick={() => setIsApiModalOpen(false)}
-                                className="absolute right-4 top-4 text-slate-400 hover:text-white bg-slate-700/50 hover:bg-slate-600/50 p-1.5 rounded-full transition-colors"
-                            >
-                                <X className="w-5 h-5" />
-                            </button>
-                            <div className="flex items-center space-x-3 mb-6">
-                                <div className="p-3 bg-blue-500/20 rounded-xl">
-                                    <Key className="w-6 h-6 text-blue-400" />
-                                </div>
-                                <div>
-                                    <h3 className="text-xl font-bold text-white">Власний API Ключ</h3>
-                                    <p className="text-sm text-slate-400">Налаштування доступу</p>
-                                </div>
-                            </div>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-300 mb-2">
-                                        YouTube Data API v3 Key
-                                    </label>
-                                    <input
-                                        type="text"
-                                        value={customApiKey}
-                                        onChange={(e) => setCustomApiKey(e.target.value)}
-                                        placeholder="AIzaSy..."
-                                        className="w-full bg-slate-900 border border-slate-600 rounded-xl py-3 px-4 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono text-sm"
-                                    />
-                                    <p className="mt-2 text-xs text-slate-400">
-                                        Зберігається лише у вашому браузері.
-                                    </p>
-                                </div>
-                                <div className="flex gap-3 pt-2">
-                                    <button
-                                        onClick={() => setIsApiModalOpen(false)}
-                                        className="flex-1 py-3 px-4 rounded-xl font-bold text-slate-300 bg-slate-700 hover:bg-slate-600 transition-colors"
-                                    >
-                                        Скасувати
-                                    </button>
-                                    <button
-                                        onClick={handleSaveApiKey}
-                                        className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-blue-600 hover:bg-blue-500 transition-colors flex items-center justify-center"
-                                    >
-                                        <Save className="w-4 h-4 mr-2" />
-                                        Зберегти
-                                    </button>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+
         </div>
     );
 };
