@@ -9,22 +9,22 @@ let globalKeyIndex = 0;
 export async function fetchWithRotation(originalUrl: string, init?: RequestInit): Promise<Response> {
     let attempts = 0;
     let lastResponse: Response | null = null;
-    
+
     // We only rotate keys for Google/YouTube APIs
     if (!originalUrl.includes('googleapis.com')) {
-        return globalThis.fetch(originalUrl, init); // pass-through
+        return fetch(originalUrl as any, init as any); // pass-through
     }
 
     while (attempts < YOUTUBE_API_KEYS.length) {
         const currentKey = YOUTUBE_API_KEYS[globalKeyIndex];
-        
+
         // Find existing key parameter and replace it
         // Or append one if it doesn't exist? (The endpoints already append one, so we just replace)
         let urlWithRotatedKey = originalUrl.replace(/((\\?|&)key=)([^&]+)/, `$1${currentKey}`);
 
-        const response = await globalThis.fetch(urlWithRotatedKey, init);
+        const response = await fetch(urlWithRotatedKey as any, init as any);
         lastResponse = response;
-        
+
         // Clone the response so we can read JSON without exhausting the body stream
         const clonedResponse = response.clone();
         try {
@@ -32,7 +32,7 @@ export async function fetchWithRotation(originalUrl: string, init?: RequestInit)
             if (data && data.error && data.error.errors) {
                 const isQuotaError = data.error.errors.some((e: any) => e.reason === 'quotaExceeded' || e.domain === 'youtube.quota');
                 const isAuthError = response.status === 403 || response.status === 401;
-                
+
                 if (isQuotaError || (isAuthError && (data.error.message.includes('has not been used') || data.error.message.includes('suspended') || data.error.message.includes('API key not valid')))) {
                     console.warn(`[API Rotation] Key index ${globalKeyIndex} failed (Quota/Auth). Rotating to next key.`);
                     globalKeyIndex = (globalKeyIndex + 1) % YOUTUBE_API_KEYS.length;
@@ -40,15 +40,15 @@ export async function fetchWithRotation(originalUrl: string, init?: RequestInit)
                     continue; // Try again loop
                 }
             }
-        } catch(e) {
+        } catch (e) {
             // Not JSON or other parsing error, just break and return response
         }
 
         // Return the valid response immediately
         return response;
     }
-    
+
     // Fallback if all keys fail - return the last fetched response
     console.error(`[API Rotation] Exhausted all ${YOUTUBE_API_KEYS.length} keys.`);
-    return lastResponse || globalThis.fetch(originalUrl, init);
+    return lastResponse || fetch(originalUrl as any, init as any);
 }
