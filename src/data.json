@@ -978,19 +978,19 @@
     },
     {
       "id": "item-1773153504352",
-      "categoryId": "cat-1772070106139",
+      "categoryId": "cat-1772096879523",
       "type": "youtube",
       "title": "СТВОРЕННЯ ВiДОСУ НЕЙРО ПРОГУЛЯНОК",
       "content": "Нейро прогулянки з нейро тваринами.",
       "url": "https://youtu.be/GGwqxxL6gPM?si=C2KwqHUIXQoa6zaV"
     },
     {
-      "id": "item-1773212710175",
-      "categoryId": "cat-1772070106139",
-      "type": "youtube",
-      "title": "Лонг ніша ШІ",
-      "content": "Реставрація карів з мультфільмів та кіно.",
-      "url": "https://youtu.be/Su2BM8vOhlk?si=lDXZtweq58a33m-C"
+      "id": "item-1773213054613",
+      "categoryId": "cat-1772070939115",
+      "type": "link",
+      "title": "character.ai",
+      "content": "Сервіс чат-ботів де можно створювати своїх персонажів та спілкуватись з уже існуючими популярними персонажами з різних всесвітів.",
+      "url": "https://character.ai/"
     }
   ]
 }
