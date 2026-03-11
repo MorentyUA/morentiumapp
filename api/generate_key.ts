@@ -33,7 +33,13 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // 1. Check if user is actually in the group
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || process.env.MORSPACE_KV_REST_API_URL;
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || process.env.MORSPACE_KV_REST_API_TOKEN;
+
+    if (!redisUrl || !redisToken) {
+      return res.status(500).json({ error: 'Server Configuration Error: Upstash/KV Database URL is missing.' });
+    }
+    const redis = new Redis({ url: redisUrl, token: redisToken });
     const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${PRIVATE_GROUP_ID}&user_id=${userId}`);
     const data = await response.json();
 
@@ -51,8 +57,7 @@ export default async function handler(req: any, res: any) {
     const generateSegment = () => Math.random().toString(36).substring(2, 6).toUpperCase();
     const newKey = `MOR-${generateSegment()}-${generateSegment()}-${generateSegment()}`;
 
-    // 3. Save to Vercel Blob (since KV is not set up)
-    // We save a small JSON file for the key
+    // 3. Save to Upstash Redis Key-Value
     const keyData = {
       userId: userId,
       status: 'pending_activation',
@@ -60,11 +65,7 @@ export default async function handler(req: any, res: any) {
       createdAt: Date.now()
     };
 
-    await put(`morvoice/keys/${newKey}.json`, JSON.stringify(keyData), {
-      access: 'public',
-      addRandomSuffix: false,
-      token: process.env.morespace_READ_WRITE_TOKEN
-    });
+    await redis.set(`morvoice:keys:${newKey}`, keyData);
 
     return res.status(200).json({ key: newKey });
 

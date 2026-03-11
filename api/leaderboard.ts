@@ -9,7 +9,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     try {
-        const redis = Redis.fromEnv();
+        const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || process.env.MORSPACE_KV_REST_API_URL;
+        const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || process.env.MORSPACE_KV_REST_API_TOKEN;
+
+        if (!redisUrl || !redisToken) {
+            console.warn("UPSTASH_REDIS_REST_URL is missing. Returning empty leaderboard.");
+            return res.status(200).json([]);
+        }
+        const redis = new Redis({ url: redisUrl, token: redisToken });
         const data: any = await redis.get('twa:leaderboard');
 
         if (!data || !Array.isArray(data)) {

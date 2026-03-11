@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Flame, Loader2, Globe, LayoutGrid, Eye, Calendar, ExternalLink, AlertCircle } from 'lucide-react';
-import type { TrendingVideo } from '../../api/youtube-trends';
+import type { TrendingVideo } from '../../api/_youtube/youtube-trends';
 
 interface YoutubeTrendsProps {
     globalApiKey: string;

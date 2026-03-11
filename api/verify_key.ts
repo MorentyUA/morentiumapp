@@ -25,7 +25,16 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({ error: 'Missing key or hwid parameter' });
     }
 
-    const redis = Redis.fromEnv();
+    const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || process.env.MORSPACE_KV_REST_API_URL;
+    const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || process.env.MORSPACE_KV_REST_API_TOKEN;
+
+    if (!redisUrl || !redisToken) {
+        return res.status(500).json({
+            valid: false,
+            error: `Server Configuration Error: Database connection missing. (KV: ${!!process.env.KV_REST_API_URL}, UPSTASH: ${!!process.env.UPSTASH_REDIS_REST_URL})`
+        });
+    }
+    const redis = new Redis({ url: redisUrl, token: redisToken });
 
     const BOT_TOKEN = process.env.BOT_TOKEN;
     const PRIVATE_GROUP_ID = process.env.PRIVATE_GROUP_ID || process.env.GROUP_ID || '-1003699693654';

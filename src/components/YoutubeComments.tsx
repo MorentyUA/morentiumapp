@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageSquare, Search, Loader2, ThumbsUp, Calendar, ExternalLink, AlertCircle, X } from 'lucide-react';
-import type { YoutubeComment } from '../../api/youtube-comments';
+import type { YoutubeComment } from '../../api/_youtube/youtube-comments';
 
 interface YoutubeCommentsProps {
     globalApiKey: string;

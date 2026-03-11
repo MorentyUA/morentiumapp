@@ -24,9 +24,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'Missing userId or score' });
         }
 
-        const redis = Redis.fromEnv();
+        const redisUrl = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || process.env.MORSPACE_KV_REST_API_URL;
+        const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || process.env.MORSPACE_KV_REST_API_TOKEN;
 
-        // 1. Fetch current leaderboard from Redis
+        if (!redisUrl || !redisToken) {
+            console.warn("UPSTASH_REDIS_REST_URL is missing. Leaderboard sync disabled.");
+            return res.status(200).json({ success: true, rank: 0, debug: "Redis Not Configured" });
+        }
+        const redis = new Redis({ url: redisUrl, token: redisToken });        // 1. Fetch current leaderboard from Redis
         let entries: LeaderboardEntry[] = [];
         const redisData = await redis.get('twa:leaderboard');
 
