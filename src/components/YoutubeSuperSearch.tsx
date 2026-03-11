@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Loader2, Diamond, Users, Calendar, ExternalLink, AlertCircle, SlidersHorizontal, Eye, Video, PlaySquare, Radio, X } from 'lucide-react';
-import type { SuperSearchVideo } from '../../api/_youtube/youtube-super-search';
+import type { SuperSearchVideo } from '../../api/_youtube/youtube-super-search.js';
 
 interface YoutubeSuperSearchProps {
     globalApiKey: string;
