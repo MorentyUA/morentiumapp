@@ -1,17 +1,12 @@
 {
-    "rewrites": [
-        {
-            "source": "/api/(.*)",
-            "destination": "/api/$1"
-        },
-        {
-            "source": "/(.*)",
-            "destination": "/index.html"
-        }
-    ],
-    "functions": {
-        "api/**/*.ts": {
-            "excludeFiles": "api/_youtube/**"
-        }
-    }
+      "rewrites": [
+              {
+                        "source": "/api/(.*)",
+                        "destination": "/api/$1"
+              },
+              {
+                        "source": "/(.*)",
+                        "destination": "/index.html"
+              }
+      ]
 }
