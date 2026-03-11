@@ -8,5 +8,10 @@
             "source": "/(.*)",
             "destination": "/index.html"
         }
-    ]
+    ],
+    "functions": {
+        "api/**/*.ts": {
+            "excludeFiles": "api/_youtube/**"
+        }
+    }
 }
