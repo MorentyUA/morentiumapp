@@ -1,15 +1,15 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 
 // Import all sub-handlers dynamically to avoid packing them immediately
-import channelAuditHandler from './_youtube/youtube-channel-audit';
-import commentsHandler from './_youtube/youtube-comments';
-import revenueHandler from './_youtube/youtube-revenue';
-import spyHandler from './_youtube/youtube-spy';
-import superSearchHandler from './_youtube/youtube-super-search';
-import tagsHandler from './_youtube/youtube-tags';
-import thumbnailsHandler from './_youtube/youtube-thumbnails';
-import trackerHandler from './_youtube/youtube-tracker';
-import trendsHandler from './_youtube/youtube-trends';
+import channelAuditHandler from './_youtube/youtube-channel-audit.js';
+import commentsHandler from './_youtube/youtube-comments.js';
+import revenueHandler from './_youtube/youtube-revenue.js';
+import spyHandler from './_youtube/youtube-spy.js';
+import superSearchHandler from './_youtube/youtube-super-search.js';
+import tagsHandler from './_youtube/youtube-tags.js';
+import thumbnailsHandler from './_youtube/youtube-thumbnails.js';
+import trackerHandler from './_youtube/youtube-tracker.js';
+import trendsHandler from './_youtube/youtube-trends.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
     // Add CORS headers for local development testing
