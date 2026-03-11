@@ -38,7 +38,7 @@ export const YoutubeRevenue: React.FC = () => {
         setResult(null);
 
         try {
-            const endpoint = `/api/youtube-revenue?channel=${encodeURIComponent(url.trim())}`;
+            const endpoint = `/api/youtube?endpoint=revenue&channel=${encodeURIComponent(url.trim())}`;
             const response = await fetch(endpoint);
             const data = await response.json();
 

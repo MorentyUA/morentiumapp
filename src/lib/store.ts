@@ -20,28 +20,30 @@ export async function saveItems(items: Item[]): Promise<{ categories: Category[]
 }
 
 export async function saveStoreData(categories: Category[], items: Item[]): Promise<{ categories: Category[], items: Item[] }> {
-    // Only allow saving when running locally in development mode!
-    if (import.meta.env.DEV) {
-        try {
-            const res = await fetch('/api/save-data', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ categories, items })
-            });
+    try {
+        // If DEV mode, it saves locally to your PC via Vite's middleware
+        // If PROD mode (Vercel), it saves to GitHub via Serverless function
+        const endpoint = import.meta.env.DEV ? '/api/save-data' : '/api/github-save';
 
-            if (!res.ok) {
-                throw new Error('Failed to save data.json locally.');
-            }
+        const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ categories, items })
+        });
 
-            // Vite will hot-reload the changes automatically since data.json changed!
-        } catch (e: any) {
-            console.error("Local save failed", e);
-            throw e;
+        const data = await res.json();
+
+        if (!res.ok) {
+            throw new Error(data.error || 'Failed to save data remotely.');
         }
-    } else {
-        throw new Error("Внимание! Вы находитесь на рабочем сервере Vercel. Админка работает только на вашем компьютере через 'npm run dev'. Внесите изменения локально и пушните на Github!");
+
+        // Vite will hot-reload locally. On vercel, the GitHub push will trigger a rebuild.
+        // Return the modified reference.
+    } catch (e: any) {
+        console.error("Save Error:", e);
+        throw e;
     }
 
     return { categories, items };

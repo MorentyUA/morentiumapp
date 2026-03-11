@@ -45,6 +45,25 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
         setIsBroadcasting(false);
     };
 
+    // GitHub Sync (Local only)
+    const [isSyncing, setIsSyncing] = useState(false);
+    const handleSyncFromVercel = async () => {
+        if (isSyncing) return;
+        setIsSyncing(true);
+        setSaveError('');
+        try {
+            const res = await fetch('/api/github-pull', { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'Sync failed');
+
+            alert('Успішно синхронізовано з Vercel! Зачекайте 2 секунди, сторінка оновиться.');
+            setTimeout(() => window.location.reload(), 2000);
+        } catch (e: any) {
+            setSaveError(e.message || "Failed to sync from GitHub");
+        }
+        setIsSyncing(false);
+    };
+
     // Category Form
     const [editingCategoryId, setEditingCategoryId] = useState<string | null>(null);
     const [catTitle, setCatTitle] = useState('');
@@ -59,6 +78,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
     const [itemTitle, setItemTitle] = useState('');
     const [itemContent, setItemContent] = useState('');
     const [itemUrl, setItemUrl] = useState('');
+    const [itemSearchQuery, setItemSearchQuery] = useState('');
 
     // Keep itemCatId in sync if categories are added/removed and currently empty
     useEffect(() => {
@@ -250,6 +270,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                                 </button>
                             </div>
 
+                            {import.meta.env.DEV && (
+                                <div className="mb-6">
+                                    <button
+                                        onClick={handleSyncFromVercel}
+                                        disabled={isSyncing}
+                                        className="w-full bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-bold py-2 rounded-lg transition-colors flex items-center justify-center text-sm shadow-md"
+                                    >
+                                        {isSyncing ? "📥 Завантаження з Vercel/Github..." : "⬇️ Синхронізувати контент з Vercel (Тільки на ПК)"}
+                                    </button>
+                                </div>
+                            )}
+
                             {saveError && (
                                 <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-lg text-red-200 text-sm">
                                     <p className="font-bold">Помилка збереження (Error saving to server):</p>
@@ -343,7 +375,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
 
                                     <div className="space-y-3">
                                         <h3 className="font-bold text-slate-300 px-1">Existing Items</h3>
-                                        {items.map(item => (
+                                        <div className="mb-4">
+                                            <input
+                                                type="text"
+                                                placeholder="🔍 Пошук контенту за назвою, описом або URL..."
+                                                value={itemSearchQuery}
+                                                onChange={e => setItemSearchQuery(e.target.value)}
+                                                className="w-full bg-black/40 border border-indigo-500/20 rounded-lg p-3 text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 shadow-inner"
+                                            />
+                                        </div>
+                                        {items.filter(i =>
+                                            itemSearchQuery === '' ||
+                                            i.title.toLowerCase().includes(itemSearchQuery.toLowerCase()) ||
+                                            i.content.toLowerCase().includes(itemSearchQuery.toLowerCase()) ||
+                                            (i.url && i.url.toLowerCase().includes(itemSearchQuery.toLowerCase()))
+                                        ).map(item => (
                                             <div key={item.id} className="glass-card p-4 flex justify-between items-center bg-white/5">
                                                 <div className="min-w-0 pr-4">
                                                     <p className="font-bold text-white truncate">{item.title}</p>

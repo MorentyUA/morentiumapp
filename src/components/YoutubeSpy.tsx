@@ -40,7 +40,7 @@ export const YoutubeSpy: React.FC = () => {
         setData(null);
 
         try {
-            const url = `/api/youtube-spy?q=${encodeURIComponent(query)}`;
+            const url = `/api/youtube?endpoint=spy&q=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             const resData = await res.json();
 

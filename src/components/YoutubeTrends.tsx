@@ -41,7 +41,7 @@ export const YoutubeTrends: React.FC<YoutubeTrendsProps> = () => {
         setTrends(null);
 
         try {
-            const endpoint = `/api/youtube-trends?regionCode=${selectedRegion}&categoryId=${selectedCategory}`;
+            const endpoint = `/api/youtube?endpoint=trends&regionCode=${selectedRegion}&categoryId=${selectedCategory}`;
             const response = await fetch(endpoint);
             const data = await response.json();
 

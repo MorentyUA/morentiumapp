@@ -1,4 +1,4 @@
-import { put } from '@vercel/blob';
+import { Redis } from '@upstash/redis';
 
 export default async function handler(req: any, res: any) {
   // CORS Headers

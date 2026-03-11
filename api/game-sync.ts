@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { put, list, del } from '@vercel/blob';
+import { Redis } from '@upstash/redis';
 
-const STORE_FILE = 'leaderboard.json';
 const MAX_LEADERBOARD_SIZE = 100;
 
 export interface LeaderboardEntry {
@@ -25,20 +24,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             return res.status(400).json({ error: 'Missing userId or score' });
         }
 
-        let entries: LeaderboardEntry[] = [];
-        const { blobs } = await list({ token: process.env.morespace_READ_WRITE_TOKEN });
-        const storeBlobs = blobs.filter(b => b.pathname.includes('leaderboard'));
-        storeBlobs.sort((a, b) => new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime());
-        const existingBlob = storeBlobs[0];
+        const redis = Redis.fromEnv();
 
-        if (existingBlob) {
-            const cacheBusterUrl = `${existingBlob.url}?t=${Date.now()}`;
-            const response = await fetch(cacheBusterUrl, {
-                cache: 'no-store'
-            });
-            if (response.ok) {
-                entries = await response.json();
-            }
+        // 1. Fetch current leaderboard from Redis
+        let entries: LeaderboardEntry[] = [];
+        const redisData = await redis.get('twa:leaderboard');
+
+        if (redisData && Array.isArray(redisData)) {
+            entries = redisData;
         }
 
         // Update or Insert
@@ -76,20 +69,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             entries = entries.slice(0, MAX_LEADERBOARD_SIZE);
         }
 
-        // Save with random suffix to bypass Vercel Blob CDNs instantly
-        const { url, pathname } = await put(STORE_FILE, JSON.stringify(entries), {
-            access: 'public',
-            addRandomSuffix: true,
-            token: process.env.morespace_READ_WRITE_TOKEN
-        });
+        // Save directly to Redis
+        await redis.set('twa:leaderboard', entries);
 
-        // Garbage Collect old blobs
-        const oldBlobUrls = storeBlobs.filter(b => b.pathname !== pathname).map(b => b.url);
-        if (oldBlobUrls.length > 0) {
-            await del(oldBlobUrls, { token: process.env.morespace_READ_WRITE_TOKEN }).catch(e => console.error("GC Error", e));
-        }
-
-        res.status(200).json({ success: true, url, rank: entries.findIndex(e => e.userId === userId) + 1 });
+        res.status(200).json({ success: true, rank: entries.findIndex(e => e.userId === userId) + 1 });
     } catch (e: any) {
         console.error('Leaderboard sync error:', e);
         res.status(500).json({ error: e.message });

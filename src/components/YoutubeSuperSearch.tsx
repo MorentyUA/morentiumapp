@@ -42,7 +42,7 @@ export const YoutubeSuperSearch: React.FC<YoutubeSuperSearchProps> = () => {
         setScannedTotal(0);
 
         try {
-            const endpoint = `/api/youtube-super-search?query=${encodeURIComponent(query)}&minSubs=${minSubs || 0}&maxSubs=${maxSubs || 0}&minViews=${minViews || 0}&maxViews=${maxViews || 0}&region=${region}&format=${format}`;
+            const endpoint = `/api/youtube?endpoint=super-search&query=${encodeURIComponent(query)}&minSubs=${minSubs || 0}&maxSubs=${maxSubs || 0}&minViews=${minViews || 0}&maxViews=${maxViews || 0}&region=${region}&format=${format}`;
             const response = await fetch(endpoint);
             const data = await response.json();
 

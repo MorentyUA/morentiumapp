@@ -1,4 +1,4 @@
-import { list, put } from '@vercel/blob';
+import { Redis } from '@upstash/redis';
 
 export default async function handler(req: any, res: any) {
     // CORS Headers
@@ -25,23 +25,18 @@ export default async function handler(req: any, res: any) {
         return res.status(400).json({ error: 'Missing key or hwid parameter' });
     }
 
+    const redis = Redis.fromEnv();
+
     const BOT_TOKEN = process.env.BOT_TOKEN;
     const PRIVATE_GROUP_ID = process.env.PRIVATE_GROUP_ID || process.env.GROUP_ID || '-1003699693654';
 
     try {
-        // 1. Check if key exists in Blob
-        const { blobs } = await list({
-            prefix: `morvoice/keys/${key}.json`,
-            token: process.env.morespace_READ_WRITE_TOKEN
-        });
+        // 1. Check if key exists in Redis
+        const keyData: any = await redis.get(`morvoice:keys:${key}`);
 
-        if (blobs.length === 0) {
+        if (!keyData) {
             return res.status(404).json({ error: 'Ключ не знайдено або він недійсний.', valid: false });
         }
-
-        const blobUrl = blobs[0].downloadUrl;
-        const keyResponse = await fetch(blobUrl);
-        const keyData = await keyResponse.json();
 
         // 2. HWID Verification Logic
         if (keyData.hwid === null) {
@@ -50,12 +45,8 @@ export default async function handler(req: any, res: any) {
             keyData.status = 'active';
             keyData.activatedAt = Date.now();
 
-            await put(`morvoice/keys/${key}.json`, JSON.stringify(keyData), {
-                access: 'public',
-                addRandomSuffix: false,
-                allowOverwrite: true,
-                token: process.env.morespace_READ_WRITE_TOKEN
-            });
+            await redis.set(`morvoice:keys:${key}`, keyData);
+
             return res.status(200).json({ valid: true, message: 'Ключ успішно активовано на цьому пристрої!', status: 'newly_activated' });
         } else {
             // Key was already activated. Check if HWID matches.

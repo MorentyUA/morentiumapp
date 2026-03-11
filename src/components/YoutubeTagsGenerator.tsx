@@ -39,7 +39,7 @@ export const YoutubeTagsGenerator: React.FC<Props> = () => {
         setData(null);
 
         try {
-            const url = `/api/youtube-tags?query=${encodeURIComponent(query)}`;
+            const url = `/api/youtube?endpoint=tags&query=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             const resData = await res.json();
 

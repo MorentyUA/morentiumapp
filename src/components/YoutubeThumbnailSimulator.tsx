@@ -55,7 +55,7 @@ export const YoutubeThumbnailSimulator: React.FC<Props> = () => {
         setVideos([]);
 
         try {
-            const url = `/api/youtube-thumbnails?query=${encodeURIComponent(nicheQuery)}&maxResults=7`;
+            const url = `/api/youtube?endpoint=thumbnails&query=${encodeURIComponent(nicheQuery)}&maxResults=7`;
             const res = await fetch(url);
             const resData = await res.json();
 

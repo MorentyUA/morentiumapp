@@ -49,7 +49,7 @@ export const YoutubeChannelAudit: React.FC<Props> = () => {
         setData(null);
 
         try {
-            const url = `/api/youtube-channel-audit?input=${encodeURIComponent(query)}`;
+            const url = `/api/youtube?endpoint=channel-audit&input=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             const resData = await res.json();
 

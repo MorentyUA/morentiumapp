@@ -30,7 +30,7 @@ export const YoutubeComments: React.FC<YoutubeCommentsProps> = () => {
         setVideoId(null);
 
         try {
-            const endpoint = `/api/youtube-comments?q=${encodeURIComponent(url)}`;
+            const endpoint = `/api/youtube?endpoint=comments&q=${encodeURIComponent(url)}`;
             const response = await fetch(endpoint);
             const data = await response.json();
 

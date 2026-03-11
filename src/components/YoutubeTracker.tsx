@@ -22,7 +22,7 @@ export const YoutubeTracker: React.FC = () => {
         setVideos([]);
 
         try {
-            const url = `/api/youtube-tracker?q=${encodeURIComponent(query)}`;
+            const url = `/api/youtube?endpoint=tracker&q=${encodeURIComponent(query)}`;
             const res = await fetch(url);
             const data = await res.json();
 
