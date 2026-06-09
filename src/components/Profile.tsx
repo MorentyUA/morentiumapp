@@ -238,7 +238,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
 
             {/* PRIVATKA Subscription Section */}
             {!privateLoading && (
-                privateSub?.is_subscribed ? (
+                (privateSub?.is_subscribed || isPrivateSubscribed || isAdmin) ? (
                     <div className="glass-card p-6 border border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-transparent relative overflow-hidden">
                         <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
 
@@ -253,13 +253,13 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                                         <span
                                             className="px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border"
                                             style={{
-                                                color: privateSub.profile?.role_color || '#4ade80',
-                                                borderColor: (privateSub.profile?.role_color || '#4ade80') + '40',
-                                                backgroundColor: (privateSub.profile?.role_color || '#4ade80') + '15',
-                                                boxShadow: `0 0 12px ${(privateSub.profile?.role_color || '#4ade80')}30`
+                                                color: isAdmin ? '#ef4444' : (privateSub?.profile?.role_color || '#4ade80'),
+                                                borderColor: (isAdmin ? '#ef4444' : (privateSub?.profile?.role_color || '#4ade80')) + '40',
+                                                backgroundColor: (isAdmin ? '#ef4444' : (privateSub?.profile?.role_color || '#4ade80')) + '15',
+                                                boxShadow: `0 0 12px ${isAdmin ? '#ef4444' : (privateSub?.profile?.role_color || '#4ade80')}30`
                                             }}
                                         >
-                                            {privateSub.profile?.emoji} {privateSub.profile?.role || 'Новачок'}
+                                            {isAdmin ? '👑' : (privateSub?.profile?.emoji || '🌟')} {isAdmin ? 'Адміністратор' : (privateSub?.profile?.role || 'Новачок')}
                                         </span>
                                     </div>
                                 </div>
@@ -267,7 +267,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                         </div>
 
                         {/* Next role progress */}
-                        {privateSub.profile?.next_role && (
+                        {!isAdmin && privateSub?.profile?.next_role && (
                             <div className="mb-4 relative z-10">
                                 <div className="flex justify-between text-xs text-slate-400 mb-1">
                                     <span>{privateSub.profile.emoji} {privateSub.profile.role}</span>
@@ -291,13 +291,13 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                                     <Calendar className="w-3 h-3" /> Оплачено до
                                 </div>
                                 <p className="text-white font-bold">
-                                    {privateSub.subscription?.expires_at
+                                    {isAdmin ? 'Необмежено' : (privateSub?.subscription?.expires_at
                                         ? new Date(privateSub.subscription.expires_at).toLocaleDateString('uk-UA')
-                                        : '—'}
+                                        : '—')}
                                 </p>
                             </div>
                             <div className={`bg-black/30 rounded-xl p-3 border ${
-                                (privateSub.subscription?.days_left || 0) <= 7
+                                !isAdmin && (privateSub?.subscription?.days_left || 0) <= 7
                                     ? 'border-red-500/30'
                                     : 'border-white/5'
                             }`}>
@@ -305,13 +305,15 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                                     <Clock className="w-3 h-3" /> Залишилось
                                 </div>
                                 <p className={`font-bold ${
-                                    (privateSub.subscription?.days_left || 0) <= 7
-                                        ? 'text-red-400'
-                                        : (privateSub.subscription?.days_left || 0) <= 14
-                                            ? 'text-amber-400'
-                                            : 'text-emerald-400'
+                                    isAdmin
+                                        ? 'text-emerald-400'
+                                        : (privateSub?.subscription?.days_left || 0) <= 7
+                                            ? 'text-red-400'
+                                            : (privateSub?.subscription?.days_left || 0) <= 14
+                                                ? 'text-amber-400'
+                                                : 'text-emerald-400'
                                 }`}>
-                                    {privateSub.subscription?.days_left || 0} днів
+                                    {isAdmin ? '∞' : `${privateSub?.subscription?.days_left || 0} днів`}
                                 </p>
                             </div>
                         </div>
