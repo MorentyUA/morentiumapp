@@ -402,7 +402,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                         Отримайте доступ до закритого контенту, секретних YouTube інструментів, десктопного софту створення контенту MOR CRAFT та прямих розборів вашого каналу.
                     </p>
                     <button
-                        onClick={() => tg.openTelegramLink(import.meta.env.VITE_INVITE_LINK || "https://t.me/morentube/183")}
+                        onClick={() => window.open('https://morenty.xyz/privat', '_blank')}
                         className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-yellow-950 font-black py-4 rounded-xl transition-all shadow-lg shadow-yellow-500/25 active:scale-95 uppercase tracking-wider text-sm"
                     >
                         Отримати VIP Доступ
