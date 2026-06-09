@@ -22,6 +22,14 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
     const { streak } = useStreak();
     const { score, currentLevel } = useGame();
 
+    const openPrivatLink = () => {
+        try {
+            tg.openLink('https://morenty.xyz/privat');
+        } catch (e) {
+            window.open('https://morenty.xyz/privat', '_blank');
+        }
+    };
+
     // PRIVATKA subscription state
     const [privateSub, setPrivateSub] = useState<any>(null);
     const [privateLoading, setPrivateLoading] = useState(true);
@@ -326,7 +334,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                                 <ExternalLink className="w-4 h-4" /> Увійти в чат
                             </button>
                             <button
-                                onClick={() => { window.open('https://morenty.xyz/privat', '_blank'); }}
+                                onClick={openPrivatLink}
                                 className="flex-1 bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-400 font-bold py-3 rounded-xl transition-all active:scale-95 text-sm"
                             >
                                 🔄 Продовжити
@@ -349,7 +357,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                             <div className="flex items-center gap-1.5">⚡ Підтримка</div>
                         </div>
                         <button
-                            onClick={() => { window.open('https://morenty.xyz/privat', '_blank'); }}
+                            onClick={openPrivatLink}
                             className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-purple-500/25 active:scale-95 uppercase tracking-wider text-sm relative z-10"
                         >
                             Оформити підписку
@@ -402,7 +410,7 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                         Отримайте доступ до закритого контенту, секретних YouTube інструментів, десктопного софту створення контенту MOR CRAFT та прямих розборів вашого каналу.
                     </p>
                     <button
-                        onClick={() => window.open('https://morenty.xyz/privat', '_blank')}
+                        onClick={openPrivatLink}
                         className="w-full bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-yellow-950 font-black py-4 rounded-xl transition-all shadow-lg shadow-yellow-500/25 active:scale-95 uppercase tracking-wider text-sm"
                     >
                         Отримати VIP Доступ

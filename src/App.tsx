@@ -146,7 +146,11 @@ function App() {
         ]
       }, (buttonId?: string) => {
         if (buttonId === 'subscribe') {
-          tg.openTelegramLink(import.meta.env.VITE_INVITE_LINK || "https://t.me/morentube/183");
+          try {
+            tg.openLink('https://morenty.xyz/privat');
+          } catch {
+            window.open('https://morenty.xyz/privat', '_blank');
+          }
         }
       });
     } catch (e) {
