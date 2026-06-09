@@ -4,7 +4,7 @@ import { Redis } from '@upstash/redis';
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const PRIVATE_GROUP_ID = process.env.PRIVATE_GROUP_ID || '-1003699693654';
 const CHAT_IDS_KEY = 'twa:chat_ids';
-const WEBAPP_URL = 'https://morentiumapp.vercel.app';
+const WEBAPP_URL = 'https://morentiumapp.vercel.app/?v=1.0.5';
 
 function getRedis() {
     const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.morecraft_KV_REST_API_URL;

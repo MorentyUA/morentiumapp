@@ -137,7 +137,8 @@ function App() {
 
   const showVIPPopup = () => {
     try {
-      tg.showPopup({
+      const twa = (window as any).Telegram?.WebApp || tg;
+      twa.showPopup({
         title: '⭐️ VIP Контент',
         message: 'Для доступу потрібна VIP підписка на нашу приватну групу!',
         buttons: [
@@ -147,8 +148,8 @@ function App() {
       }, (buttonId?: string) => {
         if (buttonId === 'subscribe') {
           try {
-            tg.openLink('https://morenty.xyz/privat');
-          } catch {
+            twa.openLink('https://morenty.xyz/privat');
+          } catch (e) {
             window.open('https://morenty.xyz/privat', '_blank');
           }
         }
