@@ -29,13 +29,6 @@
       "isPrivate": false
     },
     {
-      "id": "cat-1772108157243",
-      "title": "Софти, розширення",
-      "description": "Самi кориснi софти для роботи з YouTube",
-      "coverImage": "/images/soft.webp",
-      "isPrivate": true
-    },
-    {
       "id": "cat-1772122903019",
       "title": "Монетизацiя",
       "description": "Як отримати монетизацiю?",
@@ -419,94 +412,6 @@
       "url": "https://t.me/shadow13teambot"
     },
     {
-      "id": "item-1772108217497",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "Скрипт монтажу",
-      "content": "Скрипт який робить монтаж всiх вiдео в папцi в яку його покласти. Вiн робить склейку вiдосiв пiд звук та добавля плавне затухання та появлення. Пiсля завершення кладе все по папкам.\n\nДля роботи треба ffmpeg, папку з ним кладем на диск C.\n\nПотрiбен 1 файл mp3 та вiдоси, кладем все в одну папку, кладем скрипт та запуск.",
-      "url": "https://t.me/c/3699693654/4/337"
-    },
-    {
-      "id": "item-1772108231782",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "ffmpeg",
-      "content": "Сама корисна штука для роботи з редагуванням відео. Потрiбен для скриптiв, модiв та багато iншого.",
-      "url": "https://t.me/c/3699693654/4/339"
-    },
-    {
-      "id": "item-1772108248942",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "WinRar",
-      "content": "Кращий відкриватор архівів.",
-      "url": "https://t.me/c/3699693654/4/317"
-    },
-    {
-      "id": "item-1772108282798",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "Безлім Elevenlabs",
-      "content": "Безлім озвучка абуз Elevenlabs! (Важливо! Голос клонувати не може! Це платний бот, він дає доступ до софту!)",
-      "url": "https://t.me/c/3699693654/4/81"
-    },
-    {
-      "id": "item-1772108303367",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "Блокувач реклами",
-      "content": "Розширення блокувач реклами.",
-      "url": "https://chromewebstore.google.com/detail/adblock-%E2%80%93-%D0%B1%D0%BB%D0%BE%D0%BA%D0%B8%D1%80%D0%BE%D0%B2%D0%BA%D0%B0-%D1%80%D0%B5%D0%BA%D0%BB/gighmmpiobklfepjocnamgkkbiglidom?hl"
-    },
-    {
-      "id": "item-1772108340176",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "YouTube Upload Time",
-      "content": "Розширення яке показує час постингу вiдео.",
-      "url": "https://chromewebstore.google.com/detail/show-youtube-video-upload/amdebbajoolgbbgdhdnkhmgkkdlbkdgi?hl"
-    },
-    {
-      "id": "item-1772108377641",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "Кукi Editor",
-      "content": "Розширення редактор кукi (потрiбен для абузу Whisk).",
-      "url": "https://chromewebstore.google.com/detail/cookie-editor/hlkenndednhfkekhgcdicdfddnkalmdm?hl"
-    },
-    {
-      "id": "item-1772108394422",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "Абузер Whisk",
-      "content": "Абузер Whisk для безлiм генерацiй картинок. В блоці «Відео база» є гайд як з ним працювати.",
-      "url": "https://t.me/c/3699693654/4/73"
-    },
-    {
-      "id": "item-1772108410658",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "YouTube календар",
-      "content": "YouTube календар для монiторинга конкурентiв та себе😈",
-      "url": "https://t.me/c/3699693654/4/72"
-    },
-    {
-      "id": "item-1772108425198",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "4K Video Downloader Plus",
-      "content": "Краща прога для завантаження з ютуб.",
-      "url": "https://kichkas.biz/progi/293-4k-video-downloader-41854570-licenzionnyj-kljuch.html"
-    },
-    {
-      "id": "item-1772108442947",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "VEO3",
-      "content": "Вьетнамський софт для ВЕО.",
-      "url": "https://chichbong.me"
-    },
-    {
       "id": "item-1772122968133",
       "categoryId": "cat-1772122903019",
       "type": "link",
@@ -739,14 +644,6 @@
       "url": "https://deepai.org/machine-learning-model/waifu2x"
     },
     {
-      "id": "item-1772550538507",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "Beeftext",
-      "content": "Beeftext — це безкоштовна утиліта для автоматичної вставки текстових фрагментів (сніпетів) за допомогою гарячих клавіш.\n\n💡 Що вона робить:\n• дозволяє створювати шаблони тексту (наприклад, часто вживані фрази, емейли, адреси тощо);\n• при натисканні заданої комбінації клавіш — автоматично вставляє потрібний текст у будь-якій програмі;\n• економить час — не треба постійно копіювати/вставляти вручну.\n\n📌 Коротко: це інструмент-автопідстановка, який замінює фрагменти тексту за скороченнями або гарячими клавішами, щоб працювати швидше й без рутини.",
-      "url": "https://beeftext.org/"
-    },
-    {
       "id": "item-1772550573335",
       "categoryId": "cat-1772070939115",
       "type": "link",
@@ -769,14 +666,6 @@
       "title": "Як знайти нішу через софт",
       "content": "Софт для пошуку нiш через телеграм.",
       "url": "https://youtu.be/g6uKWRepjXA"
-    },
-    {
-      "id": "item-1772707014345",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "MOR VOICE",
-      "content": "MOR SPACE — Безлімітна Озвучка\nПрограма для генерації мовлення, яка працює повністю на ресурсах вашого комп'ютера — через процесор і відеокарту. Жодних хмарних обмежень, жодного лічильника хвилин. Озвучуйте будь-який контент цілодобово, 24/7.\nБлизько 25 голосів, які можна комбінувати між собою — створюйте унікальні авторські тембри, яких немає більше ні в кого. Улюблені комбінації зберігаються як пресети.\nПідтримувані мови:\n\n🇺🇸 Американська англійська\n🇬🇧 Британська англійська\n🇯🇵 Японська\n🇨🇳 Китайська\n🇮🇳 Хінді\n🇵🇹 Португальська\n🇮🇹 Італійська\n🇪🇸 Іспанська\n🇫🇷 Французька\n\nДоступ через MOR SPACE. Ліцензія прив'язана до одного пристрою.",
-      "url": "https://t.me/c/3699693654/4/1580"
     },
     {
       "id": "item-1772714410230",
@@ -857,14 +746,6 @@
       "title": "MOR CRAFT",
       "content": "Софт для авто-монтажу.",
       "url": "https://youtu.be/NkRMB5wsups?si=SD85MNNg-0Gcdqb4"
-    },
-    {
-      "id": "item-1773014151137",
-      "categoryId": "cat-1772108157243",
-      "type": "link",
-      "title": "MOR CRAFT",
-      "content": "Софт авто-монтажу.",
-      "url": "https://t.me/c/3699693654/2373/2374"
     },
     {
       "id": "item-1773058155787",
