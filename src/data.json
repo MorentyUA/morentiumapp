@@ -27,13 +27,6 @@
       "description": "Вiдгуки про дiяльнiсть MORENTY",
       "coverImage": "/images/feedback.webp",
       "isPrivate": false
-    },
-    {
-      "id": "cat-1772124209871",
-      "title": "Створення вiдео",
-      "description": "Робота з CapCut та Photoshop. Паки та прийоми",
-      "coverImage": "/images/montaj.webp",
-      "isPrivate": true
     }
   ],
   "items": [
@@ -396,54 +389,6 @@
       "title": "Залишити вiдгук",
       "content": "Через цього бота можно залишити вiдгук.",
       "url": "https://t.me/shadow13teambot"
-    },
-    {
-      "id": "item-1772124351860",
-      "categoryId": "cat-1772124209871",
-      "type": "link",
-      "title": "Photoshop",
-      "content": "Крякнутий фоторедактор, безкоштовний, не офiц.",
-      "url": "https://kichkas.biz/progi/309-adobe-photoshop-2024-2590-krjaknutyj.html"
-    },
-    {
-      "id": "item-1772124420320",
-      "categoryId": "cat-1772124209871",
-      "type": "link",
-      "title": "Шаблон для шапки каналу",
-      "content": "Це лiнiйка для створення шапки каналу в Photoshop.",
-      "url": "https://t.me/c/3699693654/22/273"
-    },
-    {
-      "id": "item-1772124448955",
-      "categoryId": "cat-1772124209871",
-      "type": "link",
-      "title": "CapCut",
-      "content": "Самий кращий редактор вiдео для YouTube.",
-      "url": "https://www.capcut.com/ru-by/tools/desktop-video-editor"
-    },
-    {
-      "id": "item-1772124477513",
-      "categoryId": "cat-1772124209871",
-      "type": "link",
-      "title": "KPOP DEMON HUNTERS",
-      "content": "Пак для нiшi KPOP DEMON HUNTERS.",
-      "url": "https://t.me/c/3699693654/5/558"
-    },
-    {
-      "id": "item-1772124491457",
-      "categoryId": "cat-1772124209871",
-      "type": "link",
-      "title": "Звуки",
-      "content": "Пак ЗВУКIВ для монтажу дитячих нiш (можно й дорослi).",
-      "url": "Звуки.zip"
-    },
-    {
-      "id": "item-1772124500996",
-      "categoryId": "cat-1772124209871",
-      "type": "link",
-      "title": "Треки без АП",
-      "content": "Треки БЕЗ АП для монтажу.Треки БЕЗ АП для монтажу.",
-      "url": "https://t.me/c/3699693654/5/560"
     },
     {
       "id": "item-1772124637198",
