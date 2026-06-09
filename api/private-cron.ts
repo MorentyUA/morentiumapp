@@ -1,10 +1,18 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { Redis } from '@upstash/redis';
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
 const PRIVATE_GROUP_ID = process.env.PRIVATE_GROUP_ID || '-1003699693654';
 const PRIVATE_API_SECRET = 'morenty-private-secret-2024';
 const MORENTY_API = 'https://morenty.xyz';
 const WEBAPP_URL = 'https://morentiumapp.vercel.app';
+
+function getRedis() {
+    const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || process.env.morecraft_KV_REST_API_URL;
+    const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || process.env.morecraft_KV_REST_API_TOKEN;
+    if (!url || !token) return null;
+    return new Redis({ url, token });
+}
 
 async function tgApi(method: string, body: any) {
     if (!BOT_TOKEN) return null;
@@ -60,21 +68,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         let warned = 0;
         let kicked = 0;
 
+        let redis: Redis | null = null;
+        try {
+            redis = getRedis();
+        } catch (e) {
+            console.error('[Cron] Redis init failed:', e);
+        }
+
         // 1. Warn users with expiring subscriptions (2 days left)
         for (const sub of expiringSoon) {
             const daysLeft = Math.ceil(
                 (new Date(sub.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
             );
 
+            // Skip warning if already warned today (within 20 hours)
+            if (redis) {
+                try {
+                    const warnedToday = await redis.get(`twa:warned:${sub.telegram_id}`);
+                    if (warnedToday) {
+                        console.log(`[Cron] User ${sub.telegram_id} already warned today. Skipping.`);
+                        continue;
+                    }
+                } catch (redisErr) {
+                    console.error('[Cron] Redis get error:', redisErr);
+                }
+            }
+
             try {
                 await sendMessage(sub.telegram_id,
                     `⚠️ Увага, ${sub.first_name || 'друже'}!\n\nТвоя підписка <b>ПРИВАТКА</b> закінчується через <b>${pluralizeDays(daysLeft)}</b>!\n\n🔄 Продовж підписку, щоб не втратити доступ до закритої групи.`,
                     {
-                        inline_keyboard: [[
-                            { text: '🔄 Продовжити підписку', web_app: { url: WEBAPP_URL } }
-                        ]]
+                        inline_keyboard: [
+                            [
+                                { text: '📱 Продовжити в Додатку', web_app: { url: WEBAPP_URL } }
+                            ],
+                            [
+                                { text: '🌐 Продовжити на Сайті', url: 'https://morenty.xyz/privat' }
+                            ]
+                        ]
                     }
                 );
+
+                // Track warning in Redis to prevent spamming
+                if (redis) {
+                    try {
+                        await redis.set(`twa:warned:${sub.telegram_id}`, 'true', { ex: 20 * 60 * 60 });
+                    } catch (redisErr) {
+                        console.error('[Cron] Redis set error:', redisErr);
+                    }
+                }
+
                 warned++;
                 console.log(`[Cron] Warned user ${sub.telegram_id} — ${pluralizeDays(daysLeft)} left`);
             } catch (e: any) {
@@ -95,9 +138,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 await sendMessage(sub.telegram_id,
                     `😔 На жаль, твоя підписка <b>ПРИВАТКА</b> закінчилась.\n\nТебе було видалено з закритої групи.\n\n💳 Оформи підписку знову, щоб повернутися!`,
                     {
-                        inline_keyboard: [[
-                            { text: '💳 Оформити підписку', web_app: { url: WEBAPP_URL } }
-                        ]]
+                        inline_keyboard: [
+                            [
+                                { text: '📱 Оформити в Додатку', web_app: { url: WEBAPP_URL } }
+                            ],
+                            [
+                                { text: '🌐 Оформити на Сайті', url: 'https://morenty.xyz/privat' }
+                            ]
+                        ]
                     }
                 );
 
