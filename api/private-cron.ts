@@ -31,9 +31,7 @@ async function sendMessage(chatId: number | string, text: string, replyMarkup?: 
 }
 
 async function kickUser(userId: number) {
-    // Ban then unban to kick (allows rejoining later)
     await tgApi('banChatMember', { chat_id: PRIVATE_GROUP_ID, user_id: userId });
-    // Small delay then unban
     await new Promise(r => setTimeout(r, 1000));
     await tgApi('unbanChatMember', { chat_id: PRIVATE_GROUP_ID, user_id: userId, only_if_banned: true });
 }
@@ -45,14 +43,9 @@ function pluralizeDays(n: number): string {
     return `${n} днів`;
 }
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
-    // CORS
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
-    if (req.method === 'OPTIONS') return res.status(200).end();
-
+// 1. Cron handler
+async function handleCron(req: VercelRequest, res: VercelResponse) {
     try {
-        // Fetch expiring subscriptions from morenty.xyz
         const response = await fetch(`${MORENTY_API}/api/private/expiring`, {
             headers: { 'x-private-secret': PRIVATE_API_SECRET }
         });
@@ -75,13 +68,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             console.error('[Cron] Redis init failed:', e);
         }
 
-        // 1. Warn users with expiring subscriptions (2 days left)
         for (const sub of expiringSoon) {
             const daysLeft = Math.ceil(
                 (new Date(sub.expires_at).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
             );
 
-            // Skip warning if already warned today (within 20 hours)
             if (redis) {
                 try {
                     const warnedToday = await redis.get(`twa:warned:${sub.telegram_id}`);
@@ -109,7 +100,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     }
                 );
 
-                // Track warning in Redis to prevent spamming
                 if (redis) {
                     try {
                         await redis.set(`twa:warned:${sub.telegram_id}`, 'true', { ex: 20 * 60 * 60 });
@@ -119,22 +109,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 }
 
                 warned++;
-                console.log(`[Cron] Warned user ${sub.telegram_id} — ${pluralizeDays(daysLeft)} left`);
             } catch (e: any) {
                 console.error(`[Cron] Failed to warn ${sub.telegram_id}:`, e.message);
             }
 
-            // Small delay to avoid rate limits
             await new Promise(r => setTimeout(r, 300));
         }
 
-        // 2. Kick users with expired subscriptions
         for (const sub of expired) {
             try {
-                // Kick from group
                 await kickUser(sub.telegram_id);
 
-                // Send expiry message
                 await sendMessage(sub.telegram_id,
                     `😔 На жаль, твоя підписка <b>ПРИВАТКА</b> закінчилась.\n\nТебе було видалено з закритої групи.\n\n💳 Оформи підписку знову, щоб повернутися!`,
                     {
@@ -149,7 +134,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                     }
                 );
 
-                // Mark as expired in morenty.xyz DB
                 await fetch(`${MORENTY_API}/api/private/expire`, {
                     method: 'POST',
                     headers: {
@@ -160,7 +144,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
                 });
 
                 kicked++;
-                console.log(`[Cron] Kicked user ${sub.telegram_id} — subscription expired`);
             } catch (e: any) {
                 console.error(`[Cron] Failed to kick ${sub.telegram_id}:`, e.message);
             }
@@ -168,7 +151,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             await new Promise(r => setTimeout(r, 500));
         }
 
-        console.log(`[Cron] Done: warned=${warned}, kicked=${kicked}`);
         return res.status(200).json({
             success: true,
             warned,
@@ -179,5 +161,101 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     } catch (error: any) {
         console.error('[Cron] Error:', error);
         return res.status(500).json({ error: error.message });
+    }
+}
+
+// 2. Sync handler
+async function handleSync(req: VercelRequest, res: VercelResponse) {
+    try {
+        const { users } = req.body;
+        if (!users || !Array.isArray(users)) {
+            return res.status(400).json({ error: 'Missing users array' });
+        }
+
+        const kicked: any[] = [];
+        const checked: any[] = [];
+        const errors: any[] = [];
+
+        // Get group administrators to exclude them
+        let adminIds: number[] = [];
+        try {
+            const adminsRes = await tgApi('getChatAdministrators', { chat_id: PRIVATE_GROUP_ID });
+            if (adminsRes && adminsRes.ok) {
+                adminIds = adminsRes.result.map((adm: any) => adm.user.id);
+            }
+        } catch (err: any) {
+            console.error('[Sync] Failed to fetch admins:', err.message);
+        }
+
+        for (const u of users) {
+            const userId = parseInt(u.telegram_id);
+            if (isNaN(userId)) continue;
+
+            if (adminIds.includes(userId)) continue;
+
+            try {
+                const memberRes = await tgApi('getChatMember', { chat_id: PRIVATE_GROUP_ID, user_id: userId });
+                if (!memberRes || !memberRes.ok) continue;
+
+                const status = memberRes.result.status;
+                const isInGroup = ['member', 'restricted'].includes(status);
+
+                if (isInGroup) {
+                    const subRes = await fetch(`${MORENTY_API}/api/private/user/${userId}`, {
+                        headers: { 'x-private-secret': PRIVATE_API_SECRET }
+                    });
+
+                    if (subRes.ok) {
+                        const subData = await subRes.json();
+                        if (!subData.is_subscribed) {
+                            await kickUser(userId);
+
+                            await sendMessage(userId,
+                                `😔 Твоя підписка <b>ПРИВАТКА</b> закінчилась.\n\nТебе було вилучено з закритої групи.\n\n💳 Оформи підписку знову, щоб повернутися: https://morenty.xyz/privat`
+                            );
+
+                            await fetch(`${MORENTY_API}/api/private/expire`, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'x-private-secret': PRIVATE_API_SECRET
+                                },
+                                body: JSON.stringify({ userId })
+                            });
+
+                            kicked.push({ telegram_id: userId, username: u.username });
+                        } else {
+                            checked.push({ telegram_id: userId, username: u.username, active: true });
+                        }
+                    }
+                }
+            } catch (e: any) {
+                errors.push({ telegram_id: userId, error: e.message });
+            }
+
+            await new Promise(r => setTimeout(r, 200));
+        }
+
+        return res.status(200).json({ success: true, kicked, checked, errors });
+    } catch (error: any) {
+        console.error('[Sync] Error:', error);
+        return res.status(500).json({ error: error.message });
+    }
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+    if (req.method === 'OPTIONS') return res.status(200).end();
+
+    const { action } = req.query;
+
+    if (action === 'sync' || req.method === 'POST') {
+        if (req.headers['x-private-secret'] !== PRIVATE_API_SECRET) {
+            return res.status(403).json({ error: 'Forbidden' });
+        }
+        return handleSync(req, res);
+    } else {
+        return handleCron(req, res);
     }
 }
