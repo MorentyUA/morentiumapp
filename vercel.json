@@ -12,6 +12,15 @@
           "functions": {
                         "api/youtube.ts": {
                                           "includeFiles": "api/_youtube/**"
+                        },
+                        "api/private-cron.ts": {
+                                          "maxDuration": 30
                         }
-          }
+          },
+          "crons": [
+                        {
+                                          "path": "/api/private-cron",
+                                          "schedule": "0 */6 * * *"
+                        }
+          ]
 }

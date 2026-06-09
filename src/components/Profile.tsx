@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import { useProgress } from '../hooks/useProgress';
 import { useStreak } from '../hooks/useStreak';
-import { ShieldCheck, User as UserIcon, Award, Star, BookOpen, Target, Flame, Play } from 'lucide-react';
+import { ShieldCheck, User as UserIcon, Award, Star, BookOpen, Target, Flame, Play, Lock, Calendar, Clock, ExternalLink } from 'lucide-react';
 import { useGame } from '../hooks/useGame';
 import { formatScoreDisplay } from '../utils/format';
 import { motion } from 'framer-motion';
@@ -22,6 +22,10 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
     const { streak } = useStreak();
     const { score, currentLevel } = useGame();
 
+    // PRIVATKA subscription state
+    const [privateSub, setPrivateSub] = useState<any>(null);
+    const [privateLoading, setPrivateLoading] = useState(true);
+
     // MOR VOICE Key Generation State
     const [isGeneratingKey, setIsGeneratingKey] = useState(false);
     const [morVoiceKey, setMorVoiceKey] = useState<string | null>(null);
@@ -35,6 +39,17 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
         window.addEventListener('game_state_updated', handleGameUpdate);
         return () => window.removeEventListener('game_state_updated', handleGameUpdate);
     }, []);
+
+    // Fetch PRIVATKA subscription data
+    useEffect(() => {
+        if (!user?.id) { setPrivateLoading(false); return; }
+        fetch(`https://morenty.xyz/api/private/user/${user.id}`, {
+            headers: { 'x-private-secret': 'morenty-private-secret-2024' }
+        })
+        .then(r => r.json())
+        .then(data => { setPrivateSub(data); setPrivateLoading(false); })
+        .catch(() => setPrivateLoading(false));
+    }, [user?.id]);
 
     const generateMorVoiceKey = async () => {
         if (!user?.id) return;
@@ -71,7 +86,8 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
 
     // Progress Bar Math
     const totalItems = items.length;
-    const completedCount = completedItemIds.length;
+    const validCompletedItemIds = completedItemIds.filter(id => items.some(item => item.id === id));
+    const completedCount = validCompletedItemIds.length;
     // Cap at 100% just in case of localStorage anomalies
     const progressPercentage = totalItems > 0 ? Math.min(100, Math.round((completedCount / totalItems) * 100)) : 0;
 
@@ -220,6 +236,128 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                 </div>
             </div>
 
+            {/* PRIVATKA Subscription Section */}
+            {!privateLoading && (
+                privateSub?.is_subscribed ? (
+                    <div className="glass-card p-6 border border-amber-500/30 bg-gradient-to-b from-amber-500/10 to-transparent relative overflow-hidden">
+                        <div className="absolute -top-10 -right-10 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl"></div>
+
+                        <div className="flex items-center justify-between mb-4 relative z-10">
+                            <div className="flex items-center space-x-3">
+                                <div className="p-2 bg-amber-500/20 rounded-xl">
+                                    <Lock className="w-6 h-6 text-amber-400" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-xl text-white">ПРИВАТКА</h3>
+                                    <div className="flex items-center gap-2 mt-1">
+                                        <span
+                                            className="px-2 py-0.5 rounded-full text-xs font-black uppercase tracking-wider border"
+                                            style={{
+                                                color: privateSub.profile?.role_color || '#4ade80',
+                                                borderColor: (privateSub.profile?.role_color || '#4ade80') + '40',
+                                                backgroundColor: (privateSub.profile?.role_color || '#4ade80') + '15',
+                                                boxShadow: `0 0 12px ${(privateSub.profile?.role_color || '#4ade80')}30`
+                                            }}
+                                        >
+                                            {privateSub.profile?.emoji} {privateSub.profile?.role || 'Новачок'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Next role progress */}
+                        {privateSub.profile?.next_role && (
+                            <div className="mb-4 relative z-10">
+                                <div className="flex justify-between text-xs text-slate-400 mb-1">
+                                    <span>{privateSub.profile.emoji} {privateSub.profile.role}</span>
+                                    <span>{privateSub.profile.next_role.name}</span>
+                                </div>
+                                <div className="w-full h-2 bg-black/40 rounded-full overflow-hidden border border-white/5">
+                                    <motion.div
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${Math.min(100, ((privateSub.profile.total_months || 0) / privateSub.profile.next_role.monthsNeeded) * 100)}%` }}
+                                        transition={{ duration: 1, type: 'spring' }}
+                                        className="h-full rounded-full"
+                                        style={{ backgroundColor: privateSub.profile.role_color || '#4ade80' }}
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        <div className="grid grid-cols-2 gap-3 mb-4 relative z-10">
+                            <div className="bg-black/30 rounded-xl p-3 border border-white/5">
+                                <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
+                                    <Calendar className="w-3 h-3" /> Оплачено до
+                                </div>
+                                <p className="text-white font-bold">
+                                    {privateSub.subscription?.expires_at
+                                        ? new Date(privateSub.subscription.expires_at).toLocaleDateString('uk-UA')
+                                        : '—'}
+                                </p>
+                            </div>
+                            <div className={`bg-black/30 rounded-xl p-3 border ${
+                                (privateSub.subscription?.days_left || 0) <= 7
+                                    ? 'border-red-500/30'
+                                    : 'border-white/5'
+                            }`}>
+                                <div className="flex items-center gap-2 text-slate-400 text-xs mb-1">
+                                    <Clock className="w-3 h-3" /> Залишилось
+                                </div>
+                                <p className={`font-bold ${
+                                    (privateSub.subscription?.days_left || 0) <= 7
+                                        ? 'text-red-400'
+                                        : (privateSub.subscription?.days_left || 0) <= 14
+                                            ? 'text-amber-400'
+                                            : 'text-emerald-400'
+                                }`}>
+                                    {privateSub.subscription?.days_left || 0} днів
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex gap-3 relative z-10">
+                            <button
+                                onClick={() => {
+                                    try { tg.openTelegramLink('https://t.me/+bogAUlE0j284MmEy'); } catch { window.open('https://t.me/+bogAUlE0j284MmEy'); }
+                                }}
+                                className="flex-1 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-yellow-950 font-black py-3 rounded-xl transition-all shadow-lg shadow-amber-500/20 active:scale-95 text-sm flex items-center justify-center gap-2"
+                            >
+                                <ExternalLink className="w-4 h-4" /> Увійти в чат
+                            </button>
+                            <button
+                                onClick={() => { window.open('https://morenty.xyz', '_blank'); }}
+                                className="flex-1 bg-white/5 hover:bg-white/10 border border-amber-500/30 text-amber-400 font-bold py-3 rounded-xl transition-all active:scale-95 text-sm"
+                            >
+                                🔄 Продовжити
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="glass-card p-6 border border-purple-500/30 bg-gradient-to-b from-purple-500/10 to-transparent relative overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <Lock className="w-24 h-24 text-purple-500" />
+                        </div>
+                        <h3 className="text-xl font-bold text-purple-400 mb-2">🔐 MORENTY ПРИВАТКА</h3>
+                        <p className="text-sm text-slate-300 mb-4 max-w-sm relative z-10 leading-relaxed">
+                            Закрита група з ексклюзивним контентом, спілкуванням з однодумцями та раннім доступом до нових продуктів.
+                        </p>
+                        <div className="grid grid-cols-2 gap-2 mb-5 text-xs text-slate-400 relative z-10">
+                            <div className="flex items-center gap-1.5">🔒 Закрита група</div>
+                            <div className="flex items-center gap-1.5">💬 Спілкування</div>
+                            <div className="flex items-center gap-1.5">🎯 Ранній доступ</div>
+                            <div className="flex items-center gap-1.5">⚡ Підтримка</div>
+                        </div>
+                        <button
+                            onClick={() => { window.open('https://morenty.xyz', '_blank'); }}
+                            className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black py-4 rounded-xl transition-all shadow-lg shadow-purple-500/25 active:scale-95 uppercase tracking-wider text-sm relative z-10"
+                        >
+                            Оформити підписку
+                        </button>
+                    </div>
+                )
+            )}
+
             {/* Tap-to-Earn Game Stats */}
             <div className="glass-card p-6 border border-purple-500/20 bg-purple-500/5 relative overflow-hidden group">
                 {/* Visual Flair */}
@@ -276,9 +414,9 @@ export const Profile: React.FC<ProfileProps> = ({ isPrivateSubscribed, isAdmin, 
                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
                         <ShieldCheck className="w-24 h-24 text-blue-500" />
                     </div>
-                    <h3 className="text-xl font-bold text-blue-400 mb-2">Доступ до MOR CRAFT</h3>
+                    <h3 className="text-xl font-bold text-blue-400 mb-2">Доступ до СОФТІВ!</h3>
                     <p className="text-sm text-slate-300 mb-6 relative z-10 leading-relaxed max-w-[90%]">
-                        Згенеруйте унікальний ключ для доступу до десктопного софту створення контенту MOR CRAFT.
+                        Згенеруйте унікальний ключ для доступу до десктопного софту створення та моніторингу контенту.
                         <br /><span className="text-xs text-slate-400">Цей ключ прив'яжеться до одного комп'ютера після активації.</span>
                     </p>
 

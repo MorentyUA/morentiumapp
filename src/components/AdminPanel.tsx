@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Trash2, X, Settings, Lock } from 'lucide-react';
 import { type Category, type Item, type ItemType } from '../types';
-import { saveCategories, saveItems } from '../lib/store';
+import { saveStoreData } from '../lib/store';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTelegram } from '../hooks/useTelegram';
 
@@ -105,7 +105,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                         ? { ...c, title: catTitle, description: catDesc, coverImage: catImg, isPrivate: catIsPrivate }
                         : c
                 );
-                const newData = await saveCategories(updatedCategories);
+                const newData = await saveStoreData(updatedCategories, items);
                 onDataChange(newData.categories, newData.items);
             } else {
                 // Add new
@@ -116,7 +116,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                     coverImage: catImg || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=600&q=80',
                     isPrivate: catIsPrivate,
                 };
-                const newData = await saveCategories([...categories, newCat]);
+                const newData = await saveStoreData([...categories, newCat], items);
                 onDataChange(newData.categories, newData.items);
             }
             // Reset form
@@ -147,8 +147,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
         setIsSaving(true);
         setSaveError('');
         try {
-            await saveCategories(categories.filter(c => c.id !== id));
-            const newData = await saveItems(items.filter(i => i.categoryId !== id));
+            const newCategories = categories.filter(c => c.id !== id);
+            const newItems = items.filter(i => i.categoryId !== id);
+            const newData = await saveStoreData(newCategories, newItems);
             onDataChange(newData.categories, newData.items);
         } catch (e: any) {
             setSaveError(e.message || "Failed to delete category");
@@ -171,7 +172,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                         ? { ...i, categoryId: itemCatId, type: itemType, title: itemTitle, content: itemContent, url: itemUrl }
                         : i
                 );
-                const newData = await saveItems(updatedItems);
+                const newData = await saveStoreData(categories, updatedItems);
                 onDataChange(newData.categories, newData.items);
             } else {
                 // Add new
@@ -183,7 +184,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
                     content: itemContent,
                     url: itemUrl,
                 };
-                const newData = await saveItems([...items, newItem]);
+                const newData = await saveStoreData(categories, [...items, newItem]);
                 onDataChange(newData.categories, newData.items);
             }
             // Reset form
@@ -215,7 +216,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ categories, items, onDat
         setIsSaving(true);
         setSaveError('');
         try {
-            const newData = await saveItems(items.filter(i => i.id !== id));
+            const newData = await saveStoreData(categories, items.filter(i => i.id !== id));
             onDataChange(newData.categories, newData.items);
         } catch (e: any) {
             setSaveError(e.message || "Failed to delete item");

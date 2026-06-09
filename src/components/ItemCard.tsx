@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { ExternalLink, FileText, Play, CheckCircle2, Circle, Bookmark } from 'lucide-react';
 import { type Item } from '../types';
 import { useBookmarks } from '../hooks/useBookmarks';
@@ -10,9 +10,11 @@ interface ItemCardProps {
     onToggleCompletion?: (e: React.MouseEvent) => void;
 }
 
-export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isCompleted, onToggleCompletion }) => {
+// memo: prevents re-render if props didn't change (important for long lists)
+export const ItemCard: React.FC<ItemCardProps> = memo(({ item, isSelected, isCompleted, onToggleCompletion }) => {
     const tg = (window as any).Telegram?.WebApp;
     const [isExpanded, setIsExpanded] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false); // lazy iframe: only load on tap
     const { isBookmarked, toggleBookmark } = useBookmarks();
     const isSaved = isBookmarked(item.id);
 
@@ -148,15 +150,36 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isComplete
                     <h4 className="font-bold text-xl text-white flex-1 min-w-0 pr-2">{item.title}</h4>
                     {renderToggle()}
                 </div>
-                <div className={`${isShort ? 'aspect-[9/16] max-h-[70vh] mx-auto w-auto' : 'aspect-video w-full'} rounded-xl overflow-hidden bg-[#0f172a] border border-white/10 shadow-inner flex justify-center`}>
+                <div className={`${isShort ? 'aspect-[9/16] max-h-[70vh] mx-auto w-auto' : 'aspect-video w-full'} rounded-xl overflow-hidden bg-[#0f172a] border border-white/10 shadow-inner flex justify-center relative`}>
                     {videoId ? (
-                        <iframe
-                            className="w-full h-full"
-                            src={`https://www.youtube.com/embed/${videoId}`}
-                            title={item.title}
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                        />
+                        isPlaying ? (
+                            <iframe
+                                className="w-full h-full"
+                                src={`https://www.youtube.com/embed/${videoId}?autoplay=1`}
+                                title={item.title}
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowFullScreen
+                            />
+                        ) : (
+                            // Thumbnail + play button — no iframe cost until user taps
+                            <button
+                                className="w-full h-full relative group"
+                                onClick={() => setIsPlaying(true)}
+                                aria-label="Play video"
+                            >
+                                <img
+                                    src={`https://img.youtube.com/vi/${videoId}/hqdefault.jpg`}
+                                    alt={item.title}
+                                    loading="lazy"
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/30 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                    <div className="w-16 h-16 bg-red-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
+                                        <Play className="w-7 h-7 text-white fill-white ml-1" />
+                                    </div>
+                                </div>
+                            </button>
+                        )
                     ) : (
                         <div className="flex flex-col items-center justify-center h-full text-slate-500 text-sm">
                             <Play className="w-8 h-8 mb-2 opacity-50" />
@@ -244,4 +267,4 @@ export const ItemCard: React.FC<ItemCardProps> = ({ item, isSelected, isComplete
             {renderContent()}
         </div>
     );
-};
+}); // memo
