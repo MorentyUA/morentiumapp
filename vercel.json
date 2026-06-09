@@ -20,7 +20,7 @@
           "crons": [
                         {
                                           "path": "/api/private-cron",
-                                          "schedule": "0 */6 * * *"
+                                          "schedule": "0 0 * * *"
                         }
           ]
 }
